@@ -12,6 +12,9 @@ const nextConfig: NextConfig = {
     }
     return config;
   },
+  experimental: {
+    turbopack: {},
+  },
 };
 
 export default nextConfig;
