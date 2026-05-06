@@ -5,13 +5,32 @@ import path from "path";
 
 export const dynamic = "force-dynamic";
 
+async function getDefaultContent() {
+    try {
+        const defaultDataPath = path.join(process.cwd(), "src", "data", "content.json");
+        const fileContent = await fs.readFile(defaultDataPath, "utf8");
+        return JSON.parse(fileContent);
+    } catch (err) {
+        console.error("Critical: Failed to read content.json fallback:", err);
+        return { home: { hero: {}, about: { stats: [] }, programmes: { items: [] }, news: [], gallery: [], collaborators: [] } };
+    }
+}
+
 export async function GET() {
     try {
         // Fetch all sections from the database
         const sections = await prisma.siteContent.findMany();
+
+        // If database is completely empty (unseeded), fallback to content.json
+        if (sections.length === 0) {
+            const defaultDataPath = path.join(process.cwd(), "src", "data", "content.json");
+            const fileContent = await fs.readFile(defaultDataPath, "utf8");
+            return NextResponse.json(JSON.parse(fileContent));
+        }
+
         const newsItems = await prisma.newsItem.findMany({ orderBy: { createdAt: "asc" } });
         const galleryImages = await prisma.galleryImage.findMany({ orderBy: { createdAt: "asc" } });
-        const alumniList = await prisma.alumni.findMany({ orderBy: { createdAt: "asc" } });
+        const achievementList = await prisma.achievement.findMany({ orderBy: { createdAt: "asc" } });
 
         // Build the content object matching the old JSON structure
         const sectionMap: Record<string, any> = {};
@@ -19,14 +38,17 @@ export async function GET() {
             sectionMap[s.section] = s.data;
         }
 
+        // Deep merge logic simplified: use individual section keys if they exist, otherwise fallback to root 'home' if it was stored as a whole.
+        const homeData = sectionMap["home"] || {};
+
         const content: any = {
             home: {
-                hero: sectionMap["home_hero"] || {},
-                about: sectionMap["home_about"] || {},
-                philosophy: sectionMap["home_philosophy"] || {},
-                programmes: sectionMap["home_programmes"] || {},
-                collaborators: sectionMap["home_collaborators"] || [],
-                testimonial: sectionMap["home_testimonial"] || {},
+                hero: sectionMap["home_hero"] || homeData.hero || {},
+                about: sectionMap["home_about"] || homeData.about || { stats: [] },
+                philosophy: sectionMap["home_philosophy"] || homeData.philosophy || {},
+                programmes: sectionMap["home_programmes"] || homeData.programmes || { items: [] },
+                collaborators: sectionMap["home_collaborators"] || homeData.collaborators || [],
+                testimonials: sectionMap["home_testimonials"] || homeData.testimonials || (homeData.testimonial ? [homeData.testimonial] : []),
                 news: newsItems.map((n) => ({
                     id: n.id,
                     title: n.title,
@@ -40,31 +62,25 @@ export async function GET() {
                 })),
             },
             about: sectionMap["about"] || {},
-            alumni: alumniList.map((a) => ({
+            achievements: achievementList.map((a) => ({
                 id: a.id,
-                name: a.name,
-                batch: a.batch,
-                role: a.role,
+                title: a.title,
+                date: a.date,
                 img: a.img,
-                quote: a.quote,
+                description: a.description,
             })),
             contact: sectionMap["contact"] || {},
             studentPortal: sectionMap["studentPortal"] || {},
             principal: sectionMap["principal"] || {},
             markaz: sectionMap["markaz"] || {},
+            videos: sectionMap["videos"] || [],
         };
 
         return NextResponse.json(content);
     } catch (error) {
-        console.error("Prisma failed, falling back to JSON:", error);
-        try {
-            const defaultDataPath = path.join(process.cwd(), "src", "data", "content.json");
-            const fileContent = await fs.readFile(defaultDataPath, "utf8");
-            return NextResponse.json(JSON.parse(fileContent));
-        } catch (fsError) {
-            console.error("Critical: Failed to read even the fallback JSON:", fsError);
-            return NextResponse.json({ error: "Failed to read content" }, { status: 500 });
-        }
+        console.error("Prisma lookup failed, falling back to JSON:", error);
+        const fallbackContent = await getDefaultContent();
+        return NextResponse.json(fallbackContent);
     }
 }
 
@@ -79,12 +95,13 @@ export async function POST(request: Request) {
             { section: "home_philosophy", data: newContent.home?.philosophy },
             { section: "home_programmes", data: newContent.home?.programmes },
             { section: "home_collaborators", data: newContent.home?.collaborators },
-            { section: "home_testimonial", data: newContent.home?.testimonial },
+            { section: "home_testimonials", data: newContent.home?.testimonials },
             { section: "about", data: newContent.about },
             { section: "contact", data: newContent.contact },
             { section: "principal", data: newContent.principal },
             { section: "markaz", data: newContent.markaz },
             { section: "studentPortal", data: newContent.studentPortal },
+            { section: "videos", data: newContent.videos },
         ];
 
         for (const s of sectionUpdates) {
@@ -137,25 +154,24 @@ export async function POST(request: Request) {
             }
         }
 
-        // Update Alumni — full replacement
-        if (newContent.alumni) {
-            await prisma.alumni.deleteMany();
-            for (const a of newContent.alumni) {
-                await prisma.alumni.create({
+        // Update Achievements — full replacement
+        if (newContent.achievements) {
+            await prisma.achievement.deleteMany();
+            for (const a of newContent.achievements) {
+                await prisma.achievement.create({
                     data: {
-                        name: a.name || "",
-                        batch: a.batch || "",
-                        role: a.role || "",
+                        title: a.title || "",
+                        date: a.date || "",
                         img: a.img || "",
-                        quote: a.quote || "",
+                        description: a.description || "",
                     },
                 });
             }
         }
 
         return NextResponse.json({ success: true });
-    } catch (error) {
+    } catch (error: any) {
         console.error("Failed to update content:", error);
-        return NextResponse.json({ error: "Failed to update content" }, { status: 500 });
+        return NextResponse.json({ error: "Failed to update content", details: error?.message || String(error) }, { status: 500 });
     }
 }

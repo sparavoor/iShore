@@ -51,7 +51,6 @@ export default function Navbar() {
                         label="Admission"
                         dropdownItems={[
                             { label: "Apply Online", href: "/admission" },
-                            { label: "Scholarships", href: "/scholarship" },
                             { label: "Student Login", href: "/student-portal/login" },
                         ]}
                     />
@@ -59,13 +58,14 @@ export default function Navbar() {
                         label="Academics"
                         dropdownItems={[
                             { label: "Latest News", href: "/academics" },
+                            { label: "Videos", href: "/videos" },
                             { label: "Gallery", href: "/gallery" },
                             { label: "Careers", href: "#" },
                         ]}
                     />
                     <NavItem label="Programmes" href="/programme" />
                     <NavItem label="Facilities" href="/facilities" />
-                    <NavItem label="Alumni" href="/alumni" />
+                    <NavItem label="Achievements" href="/achievements" />
                 </nav>
 
                 <div className="flex items-center gap-4">
@@ -92,7 +92,7 @@ export default function Navbar() {
                     <Link href="/academics" className="text-sm font-medium py-2 border-b border-primary/5">Academics</Link>
                     <Link href="/programme" className="text-sm font-medium py-2 border-b border-primary/5">Programmes</Link>
                     <Link href="/facilities" className="text-sm font-medium py-2 border-b border-primary/5">Facilities</Link>
-                    <Link href="/alumni" className="text-sm font-medium py-2 border-b border-primary/5">Alumni</Link>
+                    <Link href="/achievements" className="text-sm font-medium py-2 border-b border-primary/5">Achievements</Link>
                 </div>
             )}
         </header>

@@ -1,11 +1,15 @@
 {
   "home": {
     "hero": {
-      "title": "Empowering Knowledge with Values",
+      "title": "Build Future Leaders with Markaz iSHORE",
       "description": "A center of excellence dedicated to nurturing intellectual growth, moral values, and leadership for future generations.",
       "ctaPrimary": "Apply for Admission",
+      "ctaPrimaryLink": "/admission",
       "ctaSecondary": "Explore Programs",
-      "image": "https://lh3.googleusercontent.com/aida-public/AB6AXuDZRjNJp5-QN5QEcEJM7Fq9OWW3oLfyn0yullO_0jcsKGOXIoIm7fjsVP0T57x4EjUtsroZzZIKtlg7P8ESjlchinugvCKau0acTsgryS0vnxiNhFMweXwBhNzz3Q6MyX2izKT26ETpB7UOYEd1YLiRYpTNhT0qNbyq4L2VqVrz9_U_dcOgtd_QW1wLH32J1nAwQvqAvJEwmAcofAQOe4CBWm-1KKFglAnVWy6g2aIk2MismWhegZ8FkbJForuon7feuOAMgg67j0Uq"
+      "ctaSecondaryLink": "/programme",
+      "image": "/hero-bg.png",
+      "imageTablet": "/hero-bg.png",
+      "imageMobile": "/hero-bg.png"
     },
     "about": {
       "title": "Nurturing Potential with Academic Excellence & Moral Integrity",
@@ -20,8 +24,8 @@
           "value": "Connecting with world"
         },
         {
-          "label": "ALUMNI WORLDWIDE",
-          "value": "5000+"
+          "label": "Achievements",
+          "value": "Top Rankings"
         },
         {
           "label": "YEARS EXCELLENCE",
@@ -113,12 +117,14 @@
         "content": "Contrary to popular belief, Lorem Ipsum is not simply random text. It has roots in a piece of classical Latin literature from 45 BC, making it over 2000 years old. Richard McClintock, a Latin professor at Hampden-Sydney College in Virginia, looked up one of the more obscure Latin words, consectetur, from a Lorem Ipsum passage, and going through the cites of the word in classical literature, discovered the undoubtable source. Lorem Ipsum comes from sections 1.10.32 and 1.10.33 of \"de Finibus Bonorum et Malorum\" (The Extremes of Good and Evil) by Cicero, written in 45 BC. This book is a treatise on the theory of ethics, very popular during the Renaissance. The first line of Lorem Ipsum, \"Lorem ipsum dolor sit amet..\", comes from a line in section 1.10.32.\n\n"
       }
     ],
-    "testimonial": {
-      "quote": "Ishore provided not just a degree, but a direction for my life. The blend of modern education and spiritual values is what makes this place unique.",
-      "author": "Ahmed Hassan",
-      "role": "Software Engineer, Batch of 2018",
-      "image": "https://lh3.googleusercontent.com/aida-public/AB6AXuDbEhw-k1bA9tjBwU65ZFKkfngeLmRlzEOXhLs0c75KmbmJecovGk7da_N0QbLWbYdz_cbLhutDwOQtOm9TL0Gt_OxBe_OMJx6mErC-Cwqaf-KXHITcekTgFNQwKJgLcZGJYHFlhTqsOw4Mb7RF52JKB3Yz5Hu5S0-jPiyGIOU8xpGj_9-H-1yZz_N6qU_-IsnVD6ui0IzUrptWgcwTem9kp95YLQhWw5aKLKSedLK2YK7frhEI_sKJBAMvVFCrUkW0DigPBkZd7Uis"
-    },
+    "testimonials": [
+      {
+        "quote": "Ishore provided not just a degree, but a direction for my life. The blend of modern education and spiritual values is what makes this place unique.",
+        "author": "Ahmed Hassan",
+        "role": "Software Engineer, Batch of 2018",
+        "image": "https://lh3.googleusercontent.com/aida-public/AB6AXuDbEhw-k1bA9tjBwU65ZFKkfngeLmRlzEOXhLs0c75KmbmJecovGk7da_N0QbLWbYdz_cbLhutDwOQtOm9TL0Gt_OxBe_OMJx6mErC-Cwqaf-KXHITcekTgFNQwKJgLcZGJYHFlhTqsOw4Mb7RF52JKB3Yz5Hu5S0-jPiyGIOU8xpGj_9-H-1yZz_N6qU_-IsnVD6ui0IzUrptWgcwTem9kp95YLQhWw5aKLKSedLK2YK7frhEI_sKJBAMvVFCrUkW0DigPBkZd7Uis"
+      }
+    ],
     "gallery": [
       {
         "url": "https://www.markazcollege.in/images/h-about.jpg"
@@ -160,15 +166,26 @@
       "title": "About Ishore",
       "description": "Rooted in values, committed to excellence."
     },
-    "content": "Ishore Educational Institution stands at the forefront of holistic education, where academic rigor meets ethical spiritual growth. Since our inception, we have been dedicated to nurturing students who are not only professionally competent but also morally upright members of society."
+    "image": "https://images.unsplash.com/photo-1541339907198-e08756ebafe3?q=80&w=2070&auto=format&fit=crop",
+    "content": "Ishore Educational Institution stands at the forefront of holistic education, where academic rigor meets ethical spiritual growth. Since our inception, we have been dedicated to nurturing students who are not only professionally competent but also morally upright members of society.",
+    "historicalContext": {
+      "title": "Historical Context",
+      "content": "Founded in 1994, Ishore has evolved from a small local initiative into a global beacon of balanced education.",
+      "icon": "history"
+    },
+    "ethicalCore": {
+      "title": "Ethical Core",
+      "content": "Our pedagogy is centered on the integration of modern empirical knowledge with deep-rooted ethical foundations.",
+      "icon": "psychology"
+    },
+    "closingContent": "Today, we continue to bridge the gap between tradition and modernity, ensuring our students are prepared for the digital age while remaining anchored in their values."
   },
-  "alumni": [
+  "achievements": [
     {
-      "name": "New Alumni",
-      "batch": "2024",
-      "role": "Graduate",
-      "img": "https://scontent.fccj3-1.fna.fbcdn.net/v/t39.30808-6/448961083_122105884322372241_3877866910408813484_n.jpg?_nc_cat=105&ccb=1-7&_nc_sid=1d70fc&_nc_ohc=Gy4U9olmpyEQ7kNvwHvTQrI&_nc_oc=AdnYMcbks9sZ-QQUcOYGg8d_XTTd1ODx8FzgqkwhEPmNMtkRmxr_3tSXSV-5tsgLC-m5dKuk9ATLqtLtVrwSEFF7&_nc_zt=23&_nc_ht=scontent.fccj3-1.fna&_nc_gid=nM6EbMNCJsohvstxpfP34A&_nc_ss=8&oh=00_AfzFGlIerXuvH8oVVe_wtL6EMEbuVjZUphwaWMAezmdkHQ&oe=69AF10D8",
-      "quote": ""
+      "title": "Excellence in Islamic Education",
+      "date": "2024",
+      "img": "https://markaz.in/admin/assets/uploads/news-featured-16.jpg",
+      "description": "Recognized as a premier institution for blending modern education with spiritual values."
     }
   ],
   "contact": {
@@ -214,5 +231,21 @@
     "history": "Markazu Saqafathi Sunniyya, also known as Markaz, is a premier Islamic institution in Kerala, India. Founded in 1978 by Sheikh Aboobacker Ahmed, it has grown into a vast educational and social complex, catering to thousands of students across multiple disciplines. Markaz is renowned for its commitment to blending traditional Islamic sciences with modern academic excellence.",
     "content": "Markazu Saqafathi Sunniyya is the leading academic and charitable organization in India. Established in the year 1978 under the Societies Registration Act XXI of 1860, Markaz is running different educational and charitable institutions spreading all over India. The governing body of the Society includes a team of reputed scholars and active social workers who are experts in their respective fields. It has been the patron of the unprivileged population and champion of constructive education with solid spiritual foundations. We impart a system of education combined with modern curriculum and moral upbringing. Here, even the ultra modern educated abides the laws of the country and is committed to guard the true faith with utmost respect to his fellow beings. Leading from its headquarters in Calicut, Kerala, Markaz has regional educational centers and divisional offices all over India, the Gulf countries, the Europe and America. Markaz operates more than 50 institutions and many sub-centers across the world including Orphanages, School of Qur’an, Colleges of Shari’a, Secondary and Higher Schools, Arts and Science Colleges, Engineering Colleges, Orphan Home Care, Vocational Training & Technical Institutes, Medical and Professional institutes, Management and Finishing Schools, Masjids, Hospitals, Hostels for Girls…etc. Currently, more than 20,000 students are direct beneficiaries and thousands of others advantage indirectly by Markaz. At Markaz significant support has been provided to orphans, destitute and the poor students. “Markaz Homecare Project”, by which now more than 1500 orphans are taken care at the comfort of their homes, is receiving application in large numbers. “Takaful” and “Markaz Cares” are the supportive schemes of Markaz for the deserving student and children. Inspired by the teachings of Holy Qur’an and Prophet Muhammed (s) Markaz provides complete free education and day today expenses of more than 5,000 students including orphans, Sharia’a & Qur’an students, Kashmir boys…etc. Apart from educational empowerment, Markaz concentrates on medical missions, career guidance, sweet water projects in suburban areas, community marriages, and a lot more humanitarian services throughout India. When the foundation stone was laid by the world renowned scholar of Holy Makkah, Dr. Sayyid Muhammed Alawi Maliki on April 18th in the year 1978, people of Kerala including the educationalists, scholars and students witnessed the dawn of a new age. Known popularly as Markazu Saqafathi Sunniyya or simply Markaz, it is home to thousands of destitute children and a source of relief and comfort for numerous families, this vast non-governmental institution of charity has imprinted a slot for itself as the guiding light for a generation deep-rooted in a righteous way of life. Empowered by faculties that have received unequivocal acclaim from universities across the globe, Markaz has built an international reputation for its invaluable contribution to Islamic education. Markaz is one the few institutions to get the coveted recognitions of Al-Azhar University of Cairo, Egypt, Aligarh Muslim University (AMU), Aligarh, Jamia Millia, Hamdard, New Delhi, and MANUU…etc. Students belonging to different states of India such as Delhi, Hariyana, Uttar Pradesh, Bihar, J&K, Kerala, Lakshadweep, North East States…etc. and pupils from abroad such as Canada, USA, UK, Singapore…etc. are also accommodated and educationally fed in Markaz institutions. Markaz is the synonym for charity and educational service in India and abroad.",
     "programs": []
-  }
+  },
+  "videos": [
+    {
+      "id": "1",
+      "title": "Campus Tour 2024",
+      "category": "Campus tour",
+      "url": "https://www.youtube.com/embed/dQw4w9WgXcQ",
+      "thumbnail": "https://images.unsplash.com/photo-1541339907198-e08756ebafe3?q=80&w=2070&auto=format&fit=crop"
+    },
+    {
+      "id": "2",
+      "title": "Student Testimonial - Life at Ishore",
+      "category": "Student experience",
+      "url": "https://www.youtube.com/embed/dQw4w9WgXcQ",
+      "thumbnail": "https://images.unsplash.com/photo-1523050335392-9beffa5d2205?q=80&w=2070&auto=format&fit=crop"
+    }
+  ]
 }

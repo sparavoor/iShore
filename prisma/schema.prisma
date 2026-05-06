@@ -69,15 +69,14 @@ model GalleryImage {
   @@map("gallery_images")
 }
 
-// Alumni profiles
-model Alumni {
-  id        String   @id @default(uuid())
-  name      String
-  batch     String
-  role      String?
-  img       String?
-  quote     String?  @db.Text
-  createdAt DateTime @default(now()) @map("created_at")
+// Achievement items
+model Achievement {
+  id          String   @id @default(uuid())
+  title       String
+  date        String
+  img         String?
+  description String?  @db.Text
+  createdAt   DateTime @default(now()) @map("created_at")
 
-  @@map("alumni")
+  @@map("achievements")
 }

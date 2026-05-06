@@ -2,6 +2,32 @@
 
 import { useState, useEffect } from "react";
 
+const getYouTubeEmbedUrl = (url: string) => {
+    if (!url) return "";
+    let videoId = "";
+    if (url.includes("v=")) {
+        videoId = url.split("v=")[1].split("&")[0];
+    } else if (url.includes("youtu.be/")) {
+        videoId = url.split("youtu.be/")[1].split("?")[0];
+    } else if (url.includes("embed/")) {
+        videoId = url.split("embed/")[1].split("?")[0];
+    }
+    return videoId ? `https://www.youtube.com/embed/${videoId}` : url;
+};
+
+const getYouTubeThumbnail = (url: string) => {
+    if (!url) return "";
+    let videoId = "";
+    if (url.includes("v=")) {
+        videoId = url.split("v=")[1].split("&")[0];
+    } else if (url.includes("youtu.be/")) {
+        videoId = url.split("youtu.be/")[1].split("?")[0];
+    } else if (url.includes("embed/")) {
+        videoId = url.split("embed/")[1].split("?")[0];
+    }
+    return videoId ? `https://img.youtube.com/vi/${videoId}/maxresdefault.jpg` : "";
+};
+
 export default function AdminPage() {
     const [isLoggedIn, setIsLoggedIn] = useState(false);
     const [currentNav, setCurrentNav] = useState("dashboard");
@@ -9,6 +35,35 @@ export default function AdminPage() {
     const [password, setPassword] = useState("");
     const [content, setContent] = useState<any>(null);
     const [isSaving, setIsSaving] = useState(false);
+    const [isUploading, setIsUploading] = useState(false);
+
+    const handleFileUpload = async (file: File, section: string, key: string, activeTab?: string) => {
+        setIsUploading(true);
+        const formData = new FormData();
+        formData.append("file", file);
+
+        try {
+            const res = await fetch("/api/upload", {
+                method: "POST",
+                body: formData,
+            });
+            const data = await res.json();
+            if (data.success) {
+                if (activeTab) {
+                    updateField(activeTab, section, key, data.url);
+                } else {
+                    updateField(section, "", key, data.url);
+                }
+            } else {
+                alert("Upload failed: " + data.error);
+            }
+        } catch (err) {
+            console.error("Upload error:", err);
+            alert("An error occurred during upload.");
+        } finally {
+            setIsUploading(false);
+        }
+    };
     const [admissions, setAdmissions] = useState<any[]>([]);
 
     // Admission Filters State
@@ -30,11 +85,12 @@ export default function AdminPage() {
         { id: "programs", label: "Programs", icon: "child_hat" },
         { id: "testimonials", label: "Testimonials", icon: "format_quote" },
         { id: "collaborators", label: "Collaborators", icon: "handshake" },
-        { id: "alumni", label: "Alumni", icon: "group" },
+        { id: "achievements", label: "Achievements", icon: "military_tech" },
         { id: "principal", label: "Principal's Message", icon: "person" },
         { id: "markaz", label: "Markaz History", icon: "history_edu" },
         { id: "contact", label: "Contact Details", icon: "contact_support" },
         { id: "portal", label: "Portal Resources", icon: "door_open" },
+        { id: "videos", label: "Video Gallery", icon: "video_library" },
     ];
 
     useEffect(() => {
@@ -522,148 +578,6 @@ export default function AdminPage() {
                         </div>
                     )}
 
-                    {currentNav === "news" && (
-                        <div
-                            key="news-page"
-                        >
-                            <div className="sticky top-0 bg-[#f6f8f7] dark:bg-[#10221d] z-30 pb-4 pt-4 border-b border-[var(--primary)]/5 -mt-4 mb-8 flex items-center justify-between">
-                                <div>
-                                    <h2 className="text-3xl font-black text-slate-900 dark:text-white tracking-tight">News & Events</h2>
-                                    <p className="text-slate-500 dark:text-slate-400">Manage the latest updates and announcements.</p>
-                                </div>
-                                <div className="flex gap-4">
-                                    <button
-                                        onClick={() => {
-                                            const newItem = {
-                                                id: crypto.randomUUID(),
-                                                date: new Date().toLocaleDateString('en-US', { month: 'long', day: '2-digit', year: 'numeric' }),
-                                                title: "New Event Title",
-                                                img: "",
-                                                content: ""
-                                            };
-                                            const newItems = [...content.home.news, newItem];
-                                            setContent((prev: any) => ({
-                                                ...prev,
-                                                home: { ...prev.home, news: newItems }
-                                            }));
-                                        }}
-                                        className="px-6 py-3 bg-[var(--primary)] text-white font-bold rounded-xl flex items-center gap-2"
-                                    >
-                                        <span className="material-symbols-outlined">add</span>
-                                        <span>Add News</span>
-                                    </button>
-                                    <button
-                                        onClick={handleSave}
-                                        disabled={isSaving}
-                                        className="px-6 py-3 border-2 border-[var(--primary)] text-[var(--primary)] font-bold rounded-xl disabled:opacity-50"
-                                    >
-                                        {isSaving ? "Saving..." : "Save Changes"}
-                                    </button>
-                                </div>
-                            </div>
-
-                            <div className="space-y-4">
-                                {content?.home?.news?.map((item: any, idx: number) => (
-                                    <div key={idx} className="bg-white dark:bg-slate-900 p-6 rounded-2xl border border-[var(--primary)]/10 shadow-sm flex gap-6 items-start">
-                                        <div className="w-32 h-32 rounded-xl bg-slate-100 overflow-hidden shrink-0 border border-[var(--primary)]/5">
-                                            {item.img ? (
-                                                <img src={item.img} className="w-full h-full object-cover" alt="" />
-                                            ) : (
-                                                <div className="w-full h-full flex items-center justify-center text-slate-400">
-                                                    <span className="material-symbols-outlined text-3xl">image</span>
-                                                </div>
-                                            )}
-                                        </div>
-                                        <div className="flex-grow space-y-4">
-                                            <div className="flex justify-between items-start">
-                                                <div className="grid grid-cols-2 gap-4 flex-grow mr-4">
-                                                    <div>
-                                                        <label className="block text-xs font-bold text-slate-400 uppercase mb-1">Publish Date</label>
-                                                        <input
-                                                            type="text"
-                                                            value={item.date}
-                                                            onChange={(e) => {
-                                                                const newItems = [...content.home.news];
-                                                                newItems[idx].date = e.target.value;
-                                                                setContent((prev: any) => ({
-                                                                    ...prev,
-                                                                    home: { ...prev.home, news: newItems }
-                                                                }));
-                                                            }}
-                                                            className="w-full px-3 py-2 text-sm rounded-lg border border-[var(--primary)]/10 bg-slate-50 dark:bg-slate-800"
-                                                        />
-                                                    </div>
-                                                    <div>
-                                                        <label className="block text-xs font-bold text-slate-400 uppercase mb-1">Headline</label>
-                                                        <input
-                                                            type="text"
-                                                            value={item.title}
-                                                            onChange={(e) => {
-                                                                const newItems = [...content.home.news];
-                                                                newItems[idx].title = e.target.value;
-                                                                setContent((prev: any) => ({
-                                                                    ...prev,
-                                                                    home: { ...prev.home, news: newItems }
-                                                                }));
-                                                            }}
-                                                            className="w-full px-3 py-2 text-sm rounded-lg border border-[var(--primary)]/10 bg-slate-50 dark:bg-slate-800"
-                                                        />
-                                                    </div>
-                                                </div>
-                                                <button
-                                                    onClick={() => {
-                                                        const newItems = content.home.news.filter((_: any, i: number) => i !== idx);
-                                                        setContent((prev: any) => ({
-                                                            ...prev,
-                                                            home: { ...prev.home, news: newItems }
-                                                        }));
-                                                    }}
-                                                    className="text-red-500 hover:bg-red-50 p-2 rounded-lg transition-colors"
-                                                >
-                                                    <span className="material-symbols-outlined">delete</span>
-                                                </button>
-                                            </div>
-                                            <div>
-                                                <label className="block text-xs font-bold text-slate-400 uppercase mb-1">Image URL</label>
-                                                <input
-                                                    type="text"
-                                                    value={item.img}
-                                                    onChange={(e) => {
-                                                        const newItems = [...content.home.news];
-                                                        newItems[idx].img = e.target.value;
-                                                        setContent((prev: any) => ({
-                                                            ...prev,
-                                                            home: { ...prev.home, news: newItems }
-                                                        }));
-                                                    }}
-                                                    className="w-full px-3 py-2 text-sm rounded-lg border border-[var(--primary)]/10 bg-slate-50 dark:bg-slate-800"
-                                                    placeholder="Enter image URL"
-                                                />
-                                            </div>
-                                            <div>
-                                                <label className="block text-xs font-bold text-slate-400 uppercase mb-1">News Content</label>
-                                                <textarea
-                                                    rows={4}
-                                                    value={item.content || ""}
-                                                    onChange={(e) => {
-                                                        const newItems = [...content.home.news];
-                                                        newItems[idx].content = e.target.value;
-                                                        setContent((prev: any) => ({
-                                                            ...prev,
-                                                            home: { ...prev.home, news: newItems }
-                                                        }));
-                                                    }}
-                                                    className="w-full px-3 py-2 text-sm rounded-xl border border-[var(--primary)]/10 bg-slate-50 dark:bg-slate-800 outline-none focus:ring-2 focus:ring-[var(--primary)] transition-all resize-none"
-                                                    placeholder="Write detailed news content here..."
-                                                />
-                                            </div>
-                                        </div>
-                                    </div>
-                                ))}
-                            </div>
-                        </div>
-                    )}
-
                     {currentNav === "content" && (
                         <div
                             key="content-page"
@@ -723,6 +637,163 @@ export default function AdminPage() {
                                                     className="w-full px-4 py-3 rounded-xl border border-[var(--primary)]/10 bg-[#f6f8f7] dark:bg-emerald-950/20 outline-none focus:ring-2 focus:ring-[var(--primary)] dark:text-white transition-all resize-none"
                                                 />
                                             </div>
+                                            
+                                            {/* Only show images and buttons for Home page, as requested for About page layout */}
+                                            {activePageTab === "home" && (
+                                                <>
+                                                    <div className="grid grid-cols-1 gap-8">
+                                                        {/* Desktop Image */}
+                                                        <div>
+                                                            <label className="block text-sm font-bold text-slate-500 mb-2">Desktop Background Image (1920x1080)</label>
+                                                            <div className="flex flex-col md:flex-row gap-6 items-start">
+                                                                <div className="w-full md:w-1/2">
+                                                                    <input
+                                                                        type="text"
+                                                                        value={content[activePageTab].hero.image}
+                                                                        onChange={(e) => updateField(activePageTab, "hero", "image", e.target.value)}
+                                                                        className="w-full px-4 py-3 rounded-xl border border-[var(--primary)]/10 bg-[#f6f8f7] dark:bg-emerald-950/20 outline-none focus:ring-2 focus:ring-[var(--primary)] dark:text-white transition-all mb-4 text-sm"
+                                                                        placeholder="Desktop Image URL..."
+                                                                    />
+                                                                    <label className={`w-full flex items-center justify-center gap-2 px-6 py-3 rounded-xl font-bold cursor-pointer transition-all ${isUploading ? 'bg-slate-100 text-slate-400' : 'bg-emerald-50 text-[var(--primary)] hover:bg-emerald-100 border border-[var(--primary)]/10'}`}>
+                                                                        <span className="material-symbols-outlined">{isUploading ? 'sync' : 'upload'}</span>
+                                                                        {isUploading ? 'Uploading...' : 'Upload Desktop Version'}
+                                                                        <input 
+                                                                            type="file" 
+                                                                            className="hidden" 
+                                                                            accept="image/*"
+                                                                            onChange={(e) => {
+                                                                                const file = e.target.files?.[0];
+                                                                                if (file) handleFileUpload(file, "hero", "image", activePageTab);
+                                                                            }}
+                                                                        />
+                                                                    </label>
+                                                                </div>
+                                                                <div className="w-full md:w-1/2 aspect-video rounded-2xl overflow-hidden border border-[var(--primary)]/10 bg-slate-100 dark:bg-slate-800 relative">
+                                                                    {content[activePageTab].hero.image ? (
+                                                                        <img src={content[activePageTab].hero.image} className="w-full h-full object-cover" />
+                                                                    ) : (
+                                                                        <div className="w-full h-full flex items-center justify-center text-slate-400 text-xs">No Desktop Image</div>
+                                                                    )}
+                                                                </div>
+                                                            </div>
+                                                        </div>
+
+                                                        {/* Tablet Image */}
+                                                        <div>
+                                                            <label className="block text-sm font-bold text-slate-500 mb-2">Tablet Background Image (1024x1366)</label>
+                                                            <div className="flex flex-col md:flex-row gap-6 items-start">
+                                                                <div className="w-full md:w-1/2">
+                                                                    <input
+                                                                        type="text"
+                                                                        value={content[activePageTab].hero.imageTablet || ""}
+                                                                        onChange={(e) => updateField(activePageTab, "hero", "imageTablet", e.target.value)}
+                                                                        className="w-full px-4 py-3 rounded-xl border border-[var(--primary)]/10 bg-[#f6f8f7] dark:bg-emerald-950/20 outline-none focus:ring-2 focus:ring-[var(--primary)] dark:text-white transition-all mb-4 text-sm"
+                                                                        placeholder="Tablet Image URL..."
+                                                                    />
+                                                                    <label className={`w-full flex items-center justify-center gap-2 px-6 py-3 rounded-xl font-bold cursor-pointer transition-all ${isUploading ? 'bg-slate-100 text-slate-400' : 'bg-emerald-50 text-[var(--primary)] hover:bg-emerald-100 border border-[var(--primary)]/10'}`}>
+                                                                        <span className="material-symbols-outlined">{isUploading ? 'sync' : 'upload'}</span>
+                                                                        {isUploading ? 'Uploading...' : 'Upload Tablet Version'}
+                                                                        <input 
+                                                                            type="file" 
+                                                                            className="hidden" 
+                                                                            accept="image/*"
+                                                                            onChange={(e) => {
+                                                                                const file = e.target.files?.[0];
+                                                                                if (file) handleFileUpload(file, "hero", "imageTablet", activePageTab);
+                                                                            }}
+                                                                        />
+                                                                    </label>
+                                                                </div>
+                                                                <div className="w-full md:w-1/2 aspect-[3/4] max-h-48 rounded-2xl overflow-hidden border border-[var(--primary)]/10 bg-slate-100 dark:bg-slate-800 relative">
+                                                                    {content[activePageTab].hero.imageTablet ? (
+                                                                        <img src={content[activePageTab].hero.imageTablet} className="w-full h-full object-cover" />
+                                                                    ) : (
+                                                                        <div className="w-full h-full flex items-center justify-center text-slate-400 text-xs">No Tablet Image</div>
+                                                                    )}
+                                                                </div>
+                                                            </div>
+                                                        </div>
+
+                                                        {/* Mobile Image */}
+                                                        <div>
+                                                            <label className="block text-sm font-bold text-slate-500 mb-2">Mobile Background Image (750x1334)</label>
+                                                            <div className="flex flex-col md:flex-row gap-6 items-start">
+                                                                <div className="w-full md:w-1/2">
+                                                                    <input
+                                                                        type="text"
+                                                                        value={content[activePageTab].hero.imageMobile || ""}
+                                                                        onChange={(e) => updateField(activePageTab, "hero", "imageMobile", e.target.value)}
+                                                                        className="w-full px-4 py-3 rounded-xl border border-[var(--primary)]/10 bg-[#f6f8f7] dark:bg-emerald-950/20 outline-none focus:ring-2 focus:ring-[var(--primary)] dark:text-white transition-all mb-4 text-sm"
+                                                                        placeholder="Mobile Image URL..."
+                                                                    />
+                                                                    <label className={`w-full flex items-center justify-center gap-2 px-6 py-3 rounded-xl font-bold cursor-pointer transition-all ${isUploading ? 'bg-slate-100 text-slate-400' : 'bg-emerald-50 text-[var(--primary)] hover:bg-emerald-100 border border-[var(--primary)]/10'}`}>
+                                                                        <span className="material-symbols-outlined">{isUploading ? 'sync' : 'upload'}</span>
+                                                                        {isUploading ? 'Uploading...' : 'Upload Mobile Version'}
+                                                                        <input 
+                                                                            type="file" 
+                                                                            className="hidden" 
+                                                                            accept="image/*"
+                                                                            onChange={(e) => {
+                                                                                const file = e.target.files?.[0];
+                                                                                if (file) handleFileUpload(file, "hero", "imageMobile", activePageTab);
+                                                                            }}
+                                                                        />
+                                                                    </label>
+                                                                </div>
+                                                                <div className="w-full md:w-1/2 aspect-[9/16] max-h-48 rounded-2xl overflow-hidden border border-[var(--primary)]/10 bg-slate-100 dark:bg-slate-800 relative">
+                                                                    {content[activePageTab].hero.imageMobile ? (
+                                                                        <img src={content[activePageTab].hero.imageMobile} className="w-full h-full object-cover" />
+                                                                    ) : (
+                                                                        <div className="w-full h-full flex items-center justify-center text-slate-400 text-xs">No Mobile Image</div>
+                                                                    )}
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-4 border-t border-slate-100 dark:border-slate-800">
+                                                        <div>
+                                                            <label className="block text-sm font-bold text-slate-500 mb-2">Primary Button Text</label>
+                                                            <input
+                                                                type="text"
+                                                                value={content[activePageTab].hero.ctaPrimary || ""}
+                                                                onChange={(e) => updateField(activePageTab, "hero", "ctaPrimary", e.target.value)}
+                                                                className="w-full px-4 py-3 rounded-xl border border-[var(--primary)]/10 bg-[#f6f8f7] dark:bg-emerald-950/20 outline-none focus:ring-2 focus:ring-[var(--primary)] dark:text-white transition-all"
+                                                                placeholder="e.g. Apply Now"
+                                                            />
+                                                        </div>
+                                                        <div>
+                                                            <label className="block text-sm font-bold text-slate-500 mb-2">Primary Button Link</label>
+                                                            <input
+                                                                type="text"
+                                                                value={content[activePageTab].hero.ctaPrimaryLink || ""}
+                                                                onChange={(e) => updateField(activePageTab, "hero", "ctaPrimaryLink", e.target.value)}
+                                                                className="w-full px-4 py-3 rounded-xl border border-[var(--primary)]/10 bg-[#f6f8f7] dark:bg-emerald-950/20 outline-none focus:ring-2 focus:ring-[var(--primary)] dark:text-white transition-all"
+                                                                placeholder="e.g. /admission"
+                                                            />
+                                                        </div>
+                                                        <div>
+                                                            <label className="block text-sm font-bold text-slate-500 mb-2">Secondary Button Text</label>
+                                                            <input
+                                                                type="text"
+                                                                value={content[activePageTab].hero.ctaSecondary || ""}
+                                                                onChange={(e) => updateField(activePageTab, "hero", "ctaSecondary", e.target.value)}
+                                                                className="w-full px-4 py-3 rounded-xl border border-[var(--primary)]/10 bg-[#f6f8f7] dark:bg-emerald-950/20 outline-none focus:ring-2 focus:ring-[var(--primary)] dark:text-white transition-all"
+                                                                placeholder="e.g. Explore Programs"
+                                                            />
+                                                        </div>
+                                                        <div>
+                                                            <label className="block text-sm font-bold text-slate-500 mb-2">Secondary Button Link</label>
+                                                            <input
+                                                                type="text"
+                                                                value={content[activePageTab].hero.ctaSecondaryLink || ""}
+                                                                onChange={(e) => updateField(activePageTab, "hero", "ctaSecondaryLink", e.target.value)}
+                                                                className="w-full px-4 py-3 rounded-xl border border-[var(--primary)]/10 bg-[#f6f8f7] dark:bg-emerald-950/20 outline-none focus:ring-2 focus:ring-[var(--primary)] dark:text-white transition-all"
+                                                                placeholder="e.g. /programme"
+                                                            />
+                                                        </div>
+                                                    </div>
+                                                </>
+                                            )}
                                         </div>
                                     </div>
 
@@ -791,226 +862,142 @@ export default function AdminPage() {
                                                     </div>
                                                 </div>
                                             </div>
-
-                                            {/* Testimonial Section */}
-                                            <div className="bg-white dark:bg-slate-900 rounded-2xl border border-[var(--primary)]/10 p-8 shadow-sm">
-                                                <h3 className="text-lg font-bold text-[var(--primary)] dark:text-[var(--accent)] mb-6 flex items-center gap-2">
-                                                    <span className="material-symbols-outlined">format_quote</span> Featured Testimonial
-                                                </h3>
-                                                <div className="grid gap-6">
-                                                    <div>
-                                                        <label className="block text-sm font-bold text-slate-500 mb-2">Quote</label>
-                                                        <textarea
-                                                            rows={3}
-                                                            value={content.home.testimonial.quote}
-                                                            onChange={(e) => updateField("home", "testimonial", "quote", e.target.value)}
-                                                            className="w-full px-4 py-3 rounded-xl border border-[var(--primary)]/10 bg-[#f6f8f7] dark:bg-emerald-950/20 outline-none focus:ring-2 focus:ring-[var(--primary)] dark:text-white transition-all resize-none"
-                                                        />
-                                                    </div>
-                                                    <div className="grid grid-cols-2 gap-4">
-                                                        <div>
-                                                            <label className="block text-sm font-bold text-slate-500 mb-2">Author Name</label>
-                                                            <input
-                                                                type="text"
-                                                                value={content.home.testimonial.author}
-                                                                onChange={(e) => updateField("home", "testimonial", "author", e.target.value)}
-                                                                className="w-full px-4 py-3 rounded-xl border border-[var(--primary)]/10 bg-[#f6f8f7] dark:bg-emerald-950/20 outline-none focus:ring-2 focus:ring-[var(--primary)] dark:text-white transition-all"
-                                                            />
-                                                        </div>
-                                                        <div>
-                                                            <label className="block text-sm font-bold text-slate-500 mb-2">Role/Batch</label>
-                                                            <input
-                                                                type="text"
-                                                                value={content.home.testimonial.role}
-                                                                onChange={(e) => updateField("home", "testimonial", "role", e.target.value)}
-                                                                className="w-full px-4 py-3 rounded-xl border border-[var(--primary)]/10 bg-[#f6f8f7] dark:bg-emerald-950/20 outline-none focus:ring-2 focus:ring-[var(--primary)] dark:text-white transition-all"
-                                                            />
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>
-
-                                            {/* Collaborators Section */}
-                                            <div className="bg-white dark:bg-slate-900 rounded-2xl border border-[var(--primary)]/10 p-8 shadow-sm">
-                                                <h3 className="text-lg font-bold text-[var(--primary)] dark:text-[var(--accent)] mb-6 flex items-center gap-2">
-                                                    <span className="material-symbols-outlined">handshake</span> Collaborator Logos
-                                                </h3>
-                                                <div className="grid sm:grid-cols-2 gap-6">
-                                                    {content.home.collaborators.map((c: any, i: number) => (
-                                                        <div key={i} className="space-y-4 p-4 border border-[var(--primary)]/5 rounded-xl bg-slate-50 dark:bg-emerald-950/10">
-                                                            <div className="flex items-center justify-between">
-                                                                <label className="text-xs font-bold text-slate-400 uppercase">{c.name}</label>
-                                                                <img src={c.img} className="size-8 object-contain bg-white rounded-lg border p-1" />
-                                                            </div>
-                                                            <input
-                                                                type="text"
-                                                                value={c.img}
-                                                                onChange={(e) => {
-                                                                    const newCollabs = [...content.home.collaborators];
-                                                                    newCollabs[i].img = e.target.value;
-                                                                    setContent((prev: any) => ({
-                                                                        ...prev,
-                                                                        home: { ...prev.home, collaborators: newCollabs }
-                                                                    }));
-                                                                }}
-                                                                className="w-full px-3 py-2 text-xs rounded-lg border border-[var(--primary)]/10 bg-white dark:bg-slate-800 outline-none focus:ring-1 focus:ring-[var(--primary)]"
-                                                                placeholder="Logo Image URL"
-                                                            />
-                                                        </div>
-                                                    ))}
-                                                </div>
-                                            </div>
-
-                                            <div className="space-y-6 bg-slate-50 dark:bg-slate-900/50 p-6 rounded-2xl border border-primary/5">
-                                                <div className="flex justify-between items-center">
-                                                    <h3 className="font-bold text-lg text-primary flex items-center gap-2">
-                                                        <span className="material-symbols-outlined">newspaper</span> Latest News
-                                                    </h3>
-                                                    <button
-                                                        onClick={() => {
-                                                            const newId = `news-${Date.now()}`;
-                                                            const newNews = [{ id: newId, date: "New Date", title: "New News Title", content: "Write detailed news content here...", img: "" }, ...content.home.news];
-                                                            setContent((prev: any) => ({ ...prev, home: { ...prev.home, news: newNews } }));
-                                                        }}
-                                                        className="px-4 py-2 bg-primary text-white rounded-xl text-sm font-bold flex items-center gap-2"
-                                                    >
-                                                        <span className="material-symbols-outlined text-sm">add</span> Add News
-                                                    </button>
-                                                </div>
-                                                <div className="space-y-4">
-                                                    {content.home.news.map((item: any, i: number) => (
-                                                        <div key={i} className="p-4 bg-white dark:bg-slate-800 rounded-xl border border-primary/5 space-y-3 relative group">
-                                                            <button
-                                                                onClick={() => {
-                                                                    const newNews = content.home.news.filter((_: any, idx: number) => idx !== i);
-                                                                    setContent((prev: any) => ({ ...prev, home: { ...prev.home, news: newNews } }));
-                                                                }}
-                                                                className="absolute top-2 right-2 text-red-500 opacity-0 group-hover:opacity-100 transition-opacity"
-                                                            >
-                                                                <span className="material-symbols-outlined">delete</span>
-                                                            </button>
-                                                            <div className="grid sm:grid-cols-2 gap-4">
-                                                                <div>
-                                                                    <label className="block text-xs font-bold text-slate-400 uppercase mb-1">Unique ID / Slug</label>
-                                                                    <input
-                                                                        type="text"
-                                                                        placeholder="e.g., annual-sports-day"
-                                                                        value={item.id || ""}
-                                                                        onChange={(e) => {
-                                                                            const newNews = [...content.home.news];
-                                                                            newNews[i].id = e.target.value.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)+/g, '');
-                                                                            setContent((prev: any) => ({ ...prev, home: { ...prev.home, news: newNews } }));
-                                                                        }}
-                                                                        className="w-full px-3 py-2 text-sm rounded-lg border border-primary/10 bg-slate-50 dark:bg-slate-900"
-                                                                    />
-                                                                </div>
-                                                                <div>
-                                                                    <label className="block text-xs font-bold text-slate-400 uppercase mb-1">Date</label>
-                                                                    <input
-                                                                        type="text"
-                                                                        placeholder="October 15, 2023"
-                                                                        value={item.date}
-                                                                        onChange={(e) => {
-                                                                            const newNews = [...content.home.news];
-                                                                            newNews[i].date = e.target.value;
-                                                                            setContent((prev: any) => ({ ...prev, home: { ...prev.home, news: newNews } }));
-                                                                        }}
-                                                                        className="w-full px-3 py-2 text-sm rounded-lg border border-primary/10 bg-slate-50 dark:bg-slate-900"
-                                                                    />
-                                                                </div>
-                                                            </div>
-                                                            <div>
-                                                                <label className="block text-xs font-bold text-slate-400 uppercase mb-1">Title</label>
-                                                                <input
-                                                                    type="text"
-                                                                    placeholder="Title"
-                                                                    value={item.title}
-                                                                    onChange={(e) => {
-                                                                        const newNews = [...content.home.news];
-                                                                        newNews[i].title = e.target.value;
-                                                                        setContent((prev: any) => ({ ...prev, home: { ...prev.home, news: newNews } }));
-                                                                    }}
-                                                                    className="w-full px-3 py-2 text-sm font-bold rounded-lg border border-primary/10 bg-slate-50 dark:bg-slate-900"
-                                                                />
-                                                            </div>
-                                                            <div>
-                                                                <label className="block text-xs font-bold text-slate-400 uppercase mb-1">Cover Image URL</label>
-                                                                <input
-                                                                    type="text"
-                                                                    placeholder="Image URL"
-                                                                    value={item.img}
-                                                                    onChange={(e) => {
-                                                                        const newNews = [...content.home.news];
-                                                                        newNews[i].img = e.target.value;
-                                                                        setContent((prev: any) => ({ ...prev, home: { ...prev.home, news: newNews } }));
-                                                                    }}
-                                                                    className="w-full px-3 py-2 text-sm rounded-lg border border-primary/10 bg-slate-50 dark:bg-slate-900"
-                                                                />
-                                                            </div>
-                                                            <div>
-                                                                <label className="block text-xs font-bold text-slate-400 uppercase mb-1">Full Article Content</label>
-                                                                <textarea
-                                                                    rows={5}
-                                                                    placeholder="Write the full news article here..."
-                                                                    value={item.content || ""}
-                                                                    onChange={(e) => {
-                                                                        const newNews = [...content.home.news];
-                                                                        newNews[i].content = e.target.value;
-                                                                        setContent((prev: any) => ({ ...prev, home: { ...prev.home, news: newNews } }));
-                                                                    }}
-                                                                    className="w-full px-3 py-2 text-sm rounded-lg border border-primary/10 bg-slate-50 dark:bg-slate-900 resize-y"
-                                                                />
-                                                            </div>
-                                                        </div>
-                                                    ))}
-                                                </div>
-                                            </div>
-
-                                            {/* Gallery Images Section */}
-                                            <div className="space-y-6 bg-slate-50 dark:bg-slate-900/50 p-6 rounded-2xl border border-primary/5">
-                                                <div className="flex justify-between items-center">
-                                                    <h3 className="font-bold text-lg text-primary flex items-center gap-2">
-                                                        <span className="material-symbols-outlined">photo_library</span> Gallery Images
-                                                    </h3>
-                                                    <button
-                                                        onClick={() => {
-                                                            const newGallery = [{ url: "" }, ...content.home.gallery];
-                                                            setContent((prev: any) => ({ ...prev, home: { ...prev.home, gallery: newGallery } }));
-                                                        }}
-                                                        className="px-4 py-2 bg-primary text-white rounded-xl text-sm font-bold flex items-center gap-2"
-                                                    >
-                                                        <span className="material-symbols-outlined text-sm">add</span> Add Image
-                                                    </button>
-                                                </div>
-                                                <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                                                    {content.home.gallery.map((img: any, i: number) => (
-                                                        <div key={i} className="relative group p-2 bg-white dark:bg-slate-800 rounded-xl border border-primary/5">
-                                                            <img src={img.url} className="w-full h-32 object-cover rounded-lg mb-2" />
-                                                            <input
-                                                                type="text"
-                                                                placeholder="URL"
-                                                                value={img.url}
-                                                                onChange={(e) => {
-                                                                    const newGallery = [...content.home.gallery];
-                                                                    newGallery[i].url = e.target.value;
-                                                                    setContent((prev: any) => ({ ...prev, home: { ...prev.home, gallery: newGallery } }));
-                                                                }}
-                                                                className="w-full px-2 py-1 text-[10px] rounded border border-primary/10 outline-none"
-                                                            />
-                                                            <button
-                                                                onClick={() => {
-                                                                    const newGallery = content.home.gallery.filter((_: any, idx: number) => idx !== i);
-                                                                    setContent((prev: any) => ({ ...prev, home: { ...prev.home, gallery: newGallery } }));
-                                                                }}
-                                                                className="absolute top-1 right-1 bg-red-500 text-white p-1 rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
-                                                            >
-                                                                <span className="material-symbols-outlined text-xs">close</span>
-                                                            </button>
-                                                        </div>
-                                                    ))}
-                                                </div>
-                                            </div>
                                         </>
+                                    )}
+
+                                    {/* About Page Specific Sections */}
+                                    {activePageTab === "about" && (
+                                        <div className="bg-white dark:bg-slate-900 rounded-2xl border border-[var(--primary)]/10 p-8 shadow-sm">
+                                            <h3 className="text-lg font-bold text-[var(--primary)] dark:text-[var(--accent)] mb-6 flex items-center gap-2">
+                                                <span className="material-symbols-outlined">description</span> Main Content
+                                            </h3>
+                                            <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
+                                                <div className="space-y-4">
+                                                    <div>
+                                                        <label className="block text-sm font-bold text-slate-500 mb-2">Institutional Photo</label>
+                                                        <input
+                                                            type="text"
+                                                            value={content.about.image || ""}
+                                                            onChange={(e) => updateField("about", "", "image", e.target.value)}
+                                                            className="w-full px-4 py-3 rounded-xl border border-[var(--primary)]/10 bg-[#f6f8f7] dark:bg-emerald-950/20 outline-none focus:ring-2 focus:ring-[var(--primary)] dark:text-white transition-all mb-4"
+                                                            placeholder="https://..."
+                                                        />
+                                                        <label className={`w-full flex items-center justify-center gap-2 px-6 py-3 rounded-xl font-bold cursor-pointer transition-all ${isUploading ? 'bg-slate-100 text-slate-400' : 'bg-emerald-50 text-[var(--primary)] hover:bg-emerald-100 border border-[var(--primary)]/10'}`}>
+                                                            <span className="material-symbols-outlined">{isUploading ? 'sync' : 'upload'}</span>
+                                                            {isUploading ? 'Uploading...' : 'Upload New Photo'}
+                                                            <input 
+                                                                type="file" 
+                                                                className="hidden" 
+                                                                accept="image/*"
+                                                                onChange={(e) => {
+                                                                    const file = e.target.files?.[0];
+                                                                    if (file) handleFileUpload(file, "", "image", "about");
+                                                                }}
+                                                            />
+                                                        </label>
+                                                    </div>
+                                                </div>
+                                                <div className="flex items-center justify-center p-4 bg-slate-50 dark:bg-slate-800 rounded-2xl border-2 border-dashed border-slate-200 overflow-hidden">
+                                                    {content.about.image ? (
+                                                        <img src={content.about.image} alt="About Preview" className="max-h-60 rounded-xl shadow-lg" />
+                                                    ) : (
+                                                        <span className="material-symbols-outlined text-4xl text-slate-300">image</span>
+                                                    )}
+                                                </div>
+                                            </div>
+
+                                            <div className="space-y-6">
+                                                <div>
+                                                    <label className="block text-sm font-bold text-slate-500 mb-2">Detailed Narrative</label>
+                                                    <textarea
+                                                        rows={8}
+                                                        value={content.about.content}
+                                                        onChange={(e) => updateField("about", "", "content", e.target.value)}
+                                                        className="w-full px-4 py-3 rounded-xl border border-[var(--primary)]/10 bg-[#f6f8f7] dark:bg-emerald-950/20 outline-none focus:ring-2 focus:ring-[var(--primary)] dark:text-white transition-all resize-none"
+                                                        placeholder="Enter the main content for the About page..."
+                                                    />
+                                                </div>
+
+                                                <div className="grid grid-cols-1 md:grid-cols-2 gap-8 pt-6 border-t border-slate-100 dark:border-slate-800">
+                                                    <div className="space-y-4">
+                                                        <h4 className="font-bold text-slate-900 dark:text-white flex items-center gap-2">
+                                                            <span className="material-symbols-outlined text-accent">history</span> Historical Context Card
+                                                        </h4>
+                                                        <div>
+                                                            <label className="block text-xs font-bold text-slate-400 uppercase mb-1">Card Title</label>
+                                                            <input
+                                                                type="text"
+                                                                value={content.about.historicalContext?.title || ""}
+                                                                onChange={(e) => updateField("about", "historicalContext", "title", e.target.value)}
+                                                                className="w-full px-3 py-2 text-sm rounded-lg border border-[var(--primary)]/10 bg-slate-50 dark:bg-slate-800 outline-none focus:ring-2 focus:ring-[var(--primary)] dark:text-white"
+                                                            />
+                                                        </div>
+                                                        <div>
+                                                            <label className="block text-xs font-bold text-slate-400 uppercase mb-1">Card Icon (Material Symbol)</label>
+                                                            <input
+                                                                type="text"
+                                                                value={content.about.historicalContext?.icon || ""}
+                                                                onChange={(e) => updateField("about", "historicalContext", "icon", e.target.value)}
+                                                                className="w-full px-3 py-2 text-sm rounded-lg border border-[var(--primary)]/10 bg-slate-50 dark:bg-slate-800 outline-none focus:ring-2 focus:ring-[var(--primary)] dark:text-white"
+                                                            />
+                                                        </div>
+                                                        <div>
+                                                            <label className="block text-xs font-bold text-slate-400 uppercase mb-1">Card Content</label>
+                                                            <textarea
+                                                                rows={3}
+                                                                value={content.about.historicalContext?.content || ""}
+                                                                onChange={(e) => updateField("about", "historicalContext", "content", e.target.value)}
+                                                                className="w-full px-3 py-2 text-sm rounded-lg border border-[var(--primary)]/10 bg-slate-50 dark:bg-slate-800 outline-none focus:ring-2 focus:ring-[var(--primary)] dark:text-white resize-none"
+                                                            />
+                                                        </div>
+                                                    </div>
+
+                                                    <div className="space-y-4">
+                                                        <h4 className="font-bold text-slate-900 dark:text-white flex items-center gap-2">
+                                                            <span className="material-symbols-outlined text-accent">psychology</span> Ethical Core Card
+                                                        </h4>
+                                                        <div>
+                                                            <label className="block text-xs font-bold text-slate-400 uppercase mb-1">Card Title</label>
+                                                            <input
+                                                                type="text"
+                                                                value={content.about.ethicalCore?.title || ""}
+                                                                onChange={(e) => updateField("about", "ethicalCore", "title", e.target.value)}
+                                                                className="w-full px-3 py-2 text-sm rounded-lg border border-[var(--primary)]/10 bg-slate-50 dark:bg-slate-800 outline-none focus:ring-2 focus:ring-[var(--primary)] dark:text-white"
+                                                            />
+                                                        </div>
+                                                        <div>
+                                                            <label className="block text-xs font-bold text-slate-400 uppercase mb-1">Card Icon (Material Symbol)</label>
+                                                            <input
+                                                                type="text"
+                                                                value={content.about.ethicalCore?.icon || ""}
+                                                                onChange={(e) => updateField("about", "ethicalCore", "icon", e.target.value)}
+                                                                className="w-full px-3 py-2 text-sm rounded-lg border border-[var(--primary)]/10 bg-slate-50 dark:bg-slate-800 outline-none focus:ring-2 focus:ring-[var(--primary)] dark:text-white"
+                                                            />
+                                                        </div>
+                                                        <div>
+                                                            <label className="block text-xs font-bold text-slate-400 uppercase mb-1">Card Content</label>
+                                                            <textarea
+                                                                rows={3}
+                                                                value={content.about.ethicalCore?.content || ""}
+                                                                onChange={(e) => updateField("about", "ethicalCore", "content", e.target.value)}
+                                                                className="w-full px-3 py-2 text-sm rounded-lg border border-[var(--primary)]/10 bg-slate-50 dark:bg-slate-800 outline-none focus:ring-2 focus:ring-[var(--primary)] dark:text-white resize-none"
+                                                            />
+                                                        </div>
+                                                    </div>
+                                                </div>
+
+                                                <div className="pt-6 border-t border-slate-100 dark:border-slate-800">
+                                                    <label className="block text-sm font-bold text-slate-500 mb-2">Closing Narrative</label>
+                                                    <textarea
+                                                        rows={4}
+                                                        value={content.about.closingContent || ""}
+                                                        onChange={(e) => updateField("about", "", "closingContent", e.target.value)}
+                                                        className="w-full px-4 py-3 rounded-xl border border-[var(--primary)]/10 bg-[#f6f8f7] dark:bg-emerald-950/20 outline-none focus:ring-2 focus:ring-[var(--primary)] dark:text-white transition-all resize-none"
+                                                        placeholder="Enter the closing message..."
+                                                    />
+                                                </div>
+                                            </div>
+                                        </div>
                                     )}
                                 </div>
                             )}
@@ -1143,6 +1130,129 @@ export default function AdminPage() {
                             </div>
                         </div>
                     )}
+                    {currentNav === "news" && (
+                        <div key="news-page">
+                            <div className="sticky top-0 bg-[#f6f8f7] dark:bg-[#10221d] z-30 pb-4 pt-4 border-b border-[var(--primary)]/5 -mt-4 mb-8 flex items-center justify-between">
+                                <div>
+                                    <h2 className="text-3xl font-black text-slate-900 dark:text-white tracking-tight">Latest News</h2>
+                                    <p className="text-slate-500 dark:text-slate-400">Manage institutional updates and announcements.</p>
+                                </div>
+                                <div className="flex gap-4">
+                                    <button
+                                        onClick={() => {
+                                            const newId = `news-${Date.now()}`;
+                                            const newNews = [{ id: newId, date: new Date().toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' }), title: "New News Title", content: "Write detailed news content here...", img: "" }, ...(content.home.news || [])];
+                                            setContent((prev: any) => ({ ...prev, home: { ...prev.home, news: newNews } }));
+                                        }}
+                                        className="px-6 py-3 bg-[var(--primary)] text-white font-bold rounded-xl flex items-center gap-2"
+                                    >
+                                        <span className="material-symbols-outlined">add</span>
+                                        <span>Add News</span>
+                                    </button>
+                                    <button
+                                        onClick={handleSave}
+                                        disabled={isSaving}
+                                        className="px-6 py-3 border-2 border-[var(--primary)] text-[var(--primary)] font-bold rounded-xl disabled:opacity-50"
+                                    >
+                                        {isSaving ? "Saving..." : "Save Changes"}
+                                    </button>
+                                </div>
+                            </div>
+                            <div className="space-y-6">
+                                {(content?.home?.news || []).map((item: any, i: number) => (
+                                    <div key={i} className="bg-white dark:bg-slate-900 p-8 rounded-2xl border border-[var(--primary)]/10 shadow-sm space-y-6 relative group">
+                                        <button
+                                            onClick={() => {
+                                                const newNews = content.home.news.filter((_: any, idx: number) => idx !== i);
+                                                setContent((prev: any) => ({ ...prev, home: { ...prev.home, news: newNews } }));
+                                            }}
+                                            className="absolute top-4 right-4 text-red-500 opacity-0 group-hover:opacity-100 transition-opacity"
+                                        >
+                                            <span className="material-symbols-outlined">delete</span>
+                                        </button>
+                                        <div className="grid md:grid-cols-3 gap-8">
+                                            <div className="space-y-4">
+                                                <div className="aspect-video rounded-xl bg-slate-50 overflow-hidden border border-[var(--primary)]/10">
+                                                    {item.img ? <img src={item.img} className="w-full h-full object-cover" /> :
+                                                        <div className="w-full h-full flex items-center justify-center text-slate-300"><span className="material-symbols-outlined text-4xl">image</span></div>}
+                                                </div>
+                                                <div>
+                                                    <label className="block text-xs font-bold text-slate-400 uppercase mb-1">Cover Image URL</label>
+                                                    <input
+                                                        type="text"
+                                                        value={item.img}
+                                                        onChange={(e) => {
+                                                            const newNews = [...content.home.news];
+                                                            newNews[i].img = e.target.value;
+                                                            setContent((prev: any) => ({ ...prev, home: { ...prev.home, news: newNews } }));
+                                                        }}
+                                                        className="w-full px-3 py-2 text-sm rounded-lg border border-[var(--primary)]/10 bg-slate-50 dark:bg-slate-800"
+                                                        placeholder="https://..."
+                                                    />
+                                                </div>
+                                            </div>
+                                            <div className="md:col-span-2 space-y-4">
+                                                <div className="grid grid-cols-2 gap-4">
+                                                    <div>
+                                                        <label className="block text-xs font-bold text-slate-400 uppercase mb-1">Unique ID / Slug</label>
+                                                        <input
+                                                            type="text"
+                                                            value={item.id}
+                                                            onChange={(e) => {
+                                                                const newNews = [...content.home.news];
+                                                                newNews[i].id = e.target.value.toLowerCase().replace(/[^a-z0-9]+/g, '-');
+                                                                setContent((prev: any) => ({ ...prev, home: { ...prev.home, news: newNews } }));
+                                                            }}
+                                                            className="w-full px-3 py-2 text-sm rounded-lg border border-[var(--primary)]/10 bg-slate-50 dark:bg-slate-800"
+                                                        />
+                                                    </div>
+                                                    <div>
+                                                        <label className="block text-xs font-bold text-slate-400 uppercase mb-1">Published Date</label>
+                                                        <input
+                                                            type="text"
+                                                            value={item.date}
+                                                            onChange={(e) => {
+                                                                const newNews = [...content.home.news];
+                                                                newNews[i].date = e.target.value;
+                                                                setContent((prev: any) => ({ ...prev, home: { ...prev.home, news: newNews } }));
+                                                            }}
+                                                            className="w-full px-3 py-2 text-sm rounded-lg border border-[var(--primary)]/10 bg-slate-50 dark:bg-slate-800"
+                                                        />
+                                                    </div>
+                                                </div>
+                                                <div>
+                                                    <label className="block text-xs font-bold text-slate-400 uppercase mb-1">News Title</label>
+                                                    <input
+                                                        type="text"
+                                                        value={item.title}
+                                                        onChange={(e) => {
+                                                            const newNews = [...content.home.news];
+                                                            newNews[i].title = e.target.value;
+                                                            setContent((prev: any) => ({ ...prev, home: { ...prev.home, news: newNews } }));
+                                                        }}
+                                                        className="w-full px-3 py-2 text-sm font-bold rounded-lg border border-[var(--primary)]/10 bg-slate-50 dark:bg-slate-800"
+                                                    />
+                                                </div>
+                                                <div>
+                                                    <label className="block text-xs font-bold text-slate-400 uppercase mb-1">Full Article Content</label>
+                                                    <textarea
+                                                        rows={6}
+                                                        value={item.content}
+                                                        onChange={(e) => {
+                                                            const newNews = [...content.home.news];
+                                                            newNews[i].content = e.target.value;
+                                                            setContent((prev: any) => ({ ...prev, home: { ...prev.home, news: newNews } }));
+                                                        }}
+                                                        className="w-full px-3 py-2 text-sm rounded-lg border border-[var(--primary)]/10 bg-slate-50 dark:bg-slate-800 resize-none outline-none focus:ring-2 focus:ring-[var(--primary)] transition-all"
+                                                    />
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+                    )}
                     {currentNav === "gallery" && (
                         <div
                             key="gallery-page"
@@ -1233,101 +1343,118 @@ export default function AdminPage() {
                                     <h2 className="text-3xl font-black text-slate-900 dark:text-white tracking-tight">Testimonials</h2>
                                     <p className="text-slate-500 dark:text-slate-400">Manage what students and alumni are saying.</p>
                                 </div>
-                                <button
-                                    onClick={handleSave}
-                                    disabled={isSaving}
-                                    className="px-6 py-3 bg-[var(--primary)] text-white font-bold rounded-xl"
-                                >
-                                    {isSaving ? "Saving..." : "Save Changes"}
-                                </button>
+                                <div className="flex gap-4">
+                                    <button
+                                        onClick={() => {
+                                            const newTestimonials = [{ quote: "New Quote", author: "New Author", role: "New Role", image: "" }, ...(content.home.testimonials || [])];
+                                            setContent((prev: any) => ({ ...prev, home: { ...prev.home, testimonials: newTestimonials } }));
+                                        }}
+                                        className="px-6 py-3 bg-[var(--primary)] text-white font-bold rounded-xl flex items-center gap-2"
+                                    >
+                                        <span className="material-symbols-outlined">add</span>
+                                        <span>Add Testimonial</span>
+                                    </button>
+                                    <button
+                                        onClick={handleSave}
+                                        disabled={isSaving}
+                                        className="px-6 py-3 border-2 border-[var(--primary)] text-[var(--primary)] font-bold rounded-xl disabled:opacity-50"
+                                    >
+                                        {isSaving ? "Saving..." : "Save Changes"}
+                                    </button>
+                                </div>
                             </div>
-                            <div className="bg-white dark:bg-slate-900 rounded-2xl border border-[var(--primary)]/10 p-8 shadow-sm space-y-6">
-                                <div>
-                                    <label className="block text-sm font-bold text-slate-500 mb-2">Featured Testimony / Quote</label>
-                                    <textarea
-                                        rows={4}
-                                        value={content.home.testimonial.quote}
-                                        onChange={(e) => setContent((prev: any) => ({
-                                            ...prev,
-                                            home: {
-                                                ...prev.home,
-                                                testimonial: { ...prev.home.testimonial, quote: e.target.value }
-                                            }
-                                        }))}
-                                        className="w-full px-4 py-3 rounded-xl border border-[var(--primary)]/10 bg-[#f6f8f7] dark:bg-emerald-950/20 outline-none focus:ring-2 focus:ring-[var(--primary)] dark:text-white transition-all resize-none"
-                                    />
-                                </div>
-                                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                                    <div>
-                                        <label className="block text-sm font-bold text-slate-500 mb-2">Author Name</label>
-                                        <input
-                                            type="text"
-                                            value={content.home.testimonial.author}
-                                            onChange={(e) => setContent((prev: any) => ({
-                                                ...prev,
-                                                home: {
-                                                    ...prev.home,
-                                                    testimonial: { ...prev.home.testimonial, author: e.target.value }
-                                                }
-                                            }))}
-                                            className="w-full px-4 py-3 rounded-xl border border-[var(--primary)]/10 bg-[#f6f8f7] dark:bg-emerald-950/20 outline-none focus:ring-2 focus:ring-[var(--primary)] dark:text-white transition-all"
-                                        />
+                            <div className="space-y-6">
+                                {(content?.home?.testimonials || []).map((t: any, idx: number) => (
+                                    <div key={idx} className="bg-white dark:bg-slate-900 rounded-2xl border border-[var(--primary)]/10 p-8 shadow-sm space-y-6 relative group">
+                                        <button
+                                            onClick={() => {
+                                                const newTestimonials = content.home.testimonials.filter((_: any, i: number) => i !== idx);
+                                                setContent((prev: any) => ({ ...prev, home: { ...prev.home, testimonials: newTestimonials } }));
+                                            }}
+                                            className="absolute top-4 right-4 text-red-500 opacity-0 group-hover:opacity-100 transition-opacity"
+                                        >
+                                            <span className="material-symbols-outlined">delete</span>
+                                        </button>
+                                        <div>
+                                            <label className="block text-sm font-bold text-slate-500 mb-2">Featured Testimony / Quote</label>
+                                            <textarea
+                                                rows={4}
+                                                value={t.quote}
+                                                onChange={(e) => {
+                                                    const newTestimonials = [...content.home.testimonials];
+                                                    newTestimonials[idx].quote = e.target.value;
+                                                    setContent((prev: any) => ({ ...prev, home: { ...prev.home, testimonials: newTestimonials } }));
+                                                }}
+                                                className="w-full px-4 py-3 rounded-xl border border-[var(--primary)]/10 bg-[#f6f8f7] dark:bg-emerald-950/20 outline-none focus:ring-2 focus:ring-[var(--primary)] dark:text-white transition-all resize-none"
+                                            />
+                                        </div>
+                                        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                                            <div>
+                                                <label className="block text-sm font-bold text-slate-500 mb-2">Author Name</label>
+                                                <input
+                                                    type="text"
+                                                    value={t.author}
+                                                    onChange={(e) => {
+                                                        const newTestimonials = [...content.home.testimonials];
+                                                        newTestimonials[idx].author = e.target.value;
+                                                        setContent((prev: any) => ({ ...prev, home: { ...prev.home, testimonials: newTestimonials } }));
+                                                    }}
+                                                    className="w-full px-4 py-3 rounded-xl border border-[var(--primary)]/10 bg-[#f6f8f7] dark:bg-emerald-950/20 outline-none focus:ring-2 focus:ring-[var(--primary)] dark:text-white transition-all"
+                                                />
+                                            </div>
+                                            <div>
+                                                <label className="block text-sm font-bold text-slate-500 mb-2">Role/Batch</label>
+                                                <input
+                                                    type="text"
+                                                    value={t.role}
+                                                    onChange={(e) => {
+                                                        const newTestimonials = [...content.home.testimonials];
+                                                        newTestimonials[idx].role = e.target.value;
+                                                        setContent((prev: any) => ({ ...prev, home: { ...prev.home, testimonials: newTestimonials } }));
+                                                    }}
+                                                    className="w-full px-4 py-3 rounded-xl border border-[var(--primary)]/10 bg-[#f6f8f7] dark:bg-emerald-950/20 outline-none focus:ring-2 focus:ring-[var(--primary)] dark:text-white transition-all"
+                                                />
+                                            </div>
+                                            <div>
+                                                <label className="block text-sm font-bold text-slate-500 mb-2">Image URL</label>
+                                                <input
+                                                    type="text"
+                                                    value={t.image}
+                                                    onChange={(e) => {
+                                                        const newTestimonials = [...content.home.testimonials];
+                                                        newTestimonials[idx].image = e.target.value;
+                                                        setContent((prev: any) => ({ ...prev, home: { ...prev.home, testimonials: newTestimonials } }));
+                                                    }}
+                                                    className="w-full px-4 py-3 rounded-xl border border-[var(--primary)]/10 bg-[#f6f8f7] dark:bg-emerald-950/20 outline-none focus:ring-2 focus:ring-[var(--primary)] dark:text-white transition-all"
+                                                />
+                                            </div>
+                                        </div>
                                     </div>
-                                    <div>
-                                        <label className="block text-sm font-bold text-slate-500 mb-2">Role/Batch</label>
-                                        <input
-                                            type="text"
-                                            value={content.home.testimonial.role}
-                                            onChange={(e) => setContent((prev: any) => ({
-                                                ...prev,
-                                                home: {
-                                                    ...prev.home,
-                                                    testimonial: { ...prev.home.testimonial, role: e.target.value }
-                                                }
-                                            }))}
-                                            className="w-full px-4 py-3 rounded-xl border border-[var(--primary)]/10 bg-[#f6f8f7] dark:bg-emerald-950/20 outline-none focus:ring-2 focus:ring-[var(--primary)] dark:text-white transition-all"
-                                        />
-                                    </div>
-                                    <div>
-                                        <label className="block text-sm font-bold text-slate-500 mb-2">Image URL</label>
-                                        <input
-                                            type="text"
-                                            value={content.home.testimonial.image}
-                                            onChange={(e) => setContent((prev: any) => ({
-                                                ...prev,
-                                                home: {
-                                                    ...prev.home,
-                                                    testimonial: { ...prev.home.testimonial, image: e.target.value }
-                                                }
-                                            }))}
-                                            className="w-full px-4 py-3 rounded-xl border border-[var(--primary)]/10 bg-[#f6f8f7] dark:bg-emerald-950/20 outline-none focus:ring-2 focus:ring-[var(--primary)] dark:text-white transition-all"
-                                        />
-                                    </div>
-                                </div>
+                                ))}
                             </div>
                         </div>
                     )}
 
-                    {currentNav === "alumni" && (
+                    {currentNav === "achievements" && (
                         <div
-                            key="alumni-page"
+                            key="achievements-page"
                         >
                             <div className="sticky top-0 bg-[#f6f8f7] dark:bg-[#10221d] z-30 pb-4 pt-4 border-b border-[var(--primary)]/5 -mt-4 mb-8 flex items-center justify-between">
                                 <div>
-                                    <h2 className="text-3xl font-black text-slate-900 dark:text-white tracking-tight">Alumni Profiles</h2>
-                                    <p className="text-slate-500 dark:text-slate-400">Highlight successful students and their achievements.</p>
+                                    <h2 className="text-3xl font-black text-slate-900 dark:text-white tracking-tight">Institution Achievements</h2>
+                                    <p className="text-slate-500 dark:text-slate-400">Manage milestones and recognitions earned by the institution.</p>
                                 </div>
                                 <div className="flex gap-4">
                                     <button
                                         onClick={() => {
-                                            const newItem = { name: "New Alumni", batch: "2024", role: "Graduate", img: "", quote: "" };
-                                            const newItems = [...(content.alumni || []), newItem];
-                                            setContent((prev: any) => ({ ...prev, alumni: newItems }));
+                                            const newItem = { title: "New Achievement", date: "2024", img: "", description: "" };
+                                            const newItems = [...(content.achievements || []), newItem];
+                                            setContent((prev: any) => ({ ...prev, achievements: newItems }));
                                         }}
                                         className="px-6 py-3 bg-[var(--primary)] text-white font-bold rounded-xl flex items-center gap-2"
                                     >
-                                        <span className="material-symbols-outlined">person_add</span>
-                                        <span>Add Alumni</span>
+                                        <span className="material-symbols-outlined">add</span>
+                                        <span>Add Achievement</span>
                                     </button>
                                     <button
                                         onClick={handleSave}
@@ -1339,17 +1466,17 @@ export default function AdminPage() {
                                 </div>
                             </div>
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                {content?.alumni?.map((alumnus: any, idx: number) => (
+                                {content?.achievements?.map((item: any, idx: number) => (
                                     <div key={idx} className="bg-white dark:bg-slate-900 p-6 rounded-2xl border border-[var(--primary)]/10 shadow-sm space-y-4">
                                         <div className="flex items-start justify-between">
-                                            <div className="size-20 rounded-full bg-slate-100 overflow-hidden border-2 border-[var(--primary)]/20">
-                                                {alumnus.img ? <img src={alumnus.img} className="w-full h-full object-cover" /> :
-                                                    <div className="w-full h-full flex items-center justify-center text-[var(--primary)] bg-[var(--primary)]/5"><span className="material-symbols-outlined text-4xl">person</span></div>}
+                                            <div className="w-24 h-24 rounded-xl bg-slate-100 overflow-hidden border border-[var(--primary)]/10 shrink-0">
+                                                {item.img ? <img src={item.img} className="w-full h-full object-cover" /> :
+                                                    <div className="w-full h-full flex items-center justify-center text-[var(--primary)] bg-[var(--primary)]/5"><span className="material-symbols-outlined text-3xl">military_tech</span></div>}
                                             </div>
                                             <button
                                                 onClick={() => {
-                                                    const newItems = content.alumni.filter((_: any, i: number) => i !== idx);
-                                                    setContent((prev: any) => ({ ...prev, alumni: newItems }));
+                                                    const newItems = content.achievements.filter((_: any, i: number) => i !== idx);
+                                                    setContent((prev: any) => ({ ...prev, achievements: newItems }));
                                                 }}
                                                 className="text-red-500 hover:bg-red-50 p-2 rounded-lg"
                                             >
@@ -1358,76 +1485,67 @@ export default function AdminPage() {
                                         </div>
                                         <div className="grid grid-cols-2 gap-4">
                                             <div>
-                                                <label className="block text-xs font-bold text-slate-400 uppercase mb-1">Name</label>
+                                                <label className="block text-xs font-bold text-slate-400 uppercase mb-1">Achievement Title</label>
                                                 <input
                                                     type="text"
-                                                    value={alumnus.name}
+                                                    value={item.title}
                                                     onChange={(e) => {
-                                                        const newItems = [...content.alumni];
-                                                        newItems[idx].name = e.target.value;
-                                                        setContent((prev: any) => ({ ...prev, alumni: newItems }));
+                                                        const newItems = [...content.achievements];
+                                                        newItems[idx].title = e.target.value;
+                                                        setContent((prev: any) => ({ ...prev, achievements: newItems }));
                                                     }}
                                                     className="w-full px-3 py-2 text-sm rounded-lg border border-[var(--primary)]/10 bg-slate-50 dark:bg-slate-800"
                                                 />
                                             </div>
                                             <div>
-                                                <label className="block text-xs font-bold text-slate-400 uppercase mb-1">Batch</label>
+                                                <label className="block text-xs font-bold text-slate-400 uppercase mb-1">Year / Date</label>
                                                 <input
                                                     type="text"
-                                                    value={alumnus.batch}
+                                                    value={item.date}
                                                     onChange={(e) => {
-                                                        const newItems = [...content.alumni];
-                                                        newItems[idx].batch = e.target.value;
-                                                        setContent((prev: any) => ({ ...prev, alumni: newItems }));
-                                                    }}
-                                                    className="w-full px-3 py-2 text-sm rounded-lg border border-[var(--primary)]/10 bg-slate-50 dark:bg-slate-800"
-                                                />
-                                            </div>
-                                        </div>
-                                        <div className="grid grid-cols-2 gap-4">
-                                            <div>
-                                                <label className="block text-xs font-bold text-slate-400 uppercase mb-1">Current Role</label>
-                                                <input
-                                                    type="text"
-                                                    value={alumnus.role}
-                                                    onChange={(e) => {
-                                                        const newItems = [...content.alumni];
-                                                        newItems[idx].role = e.target.value;
-                                                        setContent((prev: any) => ({ ...prev, alumni: newItems }));
-                                                    }}
-                                                    className="w-full px-3 py-2 text-sm rounded-lg border border-[var(--primary)]/10 bg-slate-50 dark:bg-slate-800"
-                                                />
-                                            </div>
-                                            <div>
-                                                <label className="block text-xs font-bold text-slate-400 uppercase mb-1">Image URL</label>
-                                                <input
-                                                    type="text"
-                                                    value={alumnus.img}
-                                                    onChange={(e) => {
-                                                        const newItems = [...content.alumni];
-                                                        newItems[idx].img = e.target.value;
-                                                        setContent((prev: any) => ({ ...prev, alumni: newItems }));
+                                                        const newItems = [...content.achievements];
+                                                        newItems[idx].date = e.target.value;
+                                                        setContent((prev: any) => ({ ...prev, achievements: newItems }));
                                                     }}
                                                     className="w-full px-3 py-2 text-sm rounded-lg border border-[var(--primary)]/10 bg-slate-50 dark:bg-slate-800"
                                                 />
                                             </div>
                                         </div>
                                         <div>
-                                            <label className="block text-xs font-bold text-slate-400 uppercase mb-1">Alumni Quote</label>
+                                            <label className="block text-xs font-bold text-slate-400 uppercase mb-1">Image URL</label>
+                                            <input
+                                                type="text"
+                                                value={item.img}
+                                                onChange={(e) => {
+                                                    const newItems = [...content.achievements];
+                                                    newItems[idx].img = e.target.value;
+                                                    setContent((prev: any) => ({ ...prev, achievements: newItems }));
+                                                }}
+                                                className="w-full px-3 py-2 text-sm rounded-lg border border-[var(--primary)]/10 bg-slate-50 dark:bg-slate-800"
+                                                placeholder="https://..."
+                                            />
+                                        </div>
+                                        <div>
+                                            <label className="block text-xs font-bold text-slate-400 uppercase mb-1">Description</label>
                                             <textarea
                                                 rows={3}
-                                                value={alumnus.quote || ""}
+                                                value={item.description || ""}
                                                 onChange={(e) => {
-                                                    const newItems = [...content.alumni];
-                                                    newItems[idx].quote = e.target.value;
-                                                    setContent((prev: any) => ({ ...prev, alumni: newItems }));
+                                                    const newItems = [...content.achievements];
+                                                    newItems[idx].description = e.target.value;
+                                                    setContent((prev: any) => ({ ...prev, achievements: newItems }));
                                                 }}
                                                 className="w-full px-3 py-2 text-sm rounded-lg border border-[var(--primary)]/10 bg-slate-50 dark:bg-slate-800 resize-none outline-none focus:ring-2 focus:ring-[var(--primary)] transition-all"
-                                                placeholder="Write a short quote or testimonial..."
+                                                placeholder="Write a brief description..."
                                             />
                                         </div>
                                     </div>
                                 ))}
+                                {(!content?.achievements || content.achievements.length === 0) && (
+                                    <div className="col-span-full py-20 text-center bg-white dark:bg-slate-900 rounded-3xl border border-dashed border-[var(--primary)]/20">
+                                        <p className="text-slate-500">No achievements added yet. Click "Add Achievement" to get started.</p>
+                                    </div>
+                                )}
                             </div>
                         </div>
                     )}
@@ -1932,7 +2050,7 @@ export default function AdminPage() {
                     )}
 
                     {/* Fallback for other nav items */}
-                    {!["dashboard", "content", "programs", "news", "gallery", "admissions", "testimonials", "alumni", "collaborators", "contact", "portal"].includes(currentNav) && (
+                    {!["dashboard", "content", "programs", "news", "gallery", "admissions", "testimonials", "achievements", "collaborators", "contact", "portal", "principal", "markaz", "videos"].includes(currentNav) && (
                         <div
                             className="flex flex-col items-center justify-center h-full text-center py-20"
                         >
@@ -2150,6 +2268,295 @@ export default function AdminPage() {
                                         </div>
                                     </div>
                                 </div>
+                            </div>
+                        </div>
+                    )}
+
+                    {currentNav === "principal" && (
+                        <div key="principal-page">
+                            <div className="sticky top-0 bg-[#f6f8f7] dark:bg-[#10221d] z-30 pb-4 pt-4 border-b border-[var(--primary)]/5 -mt-4 mb-8 flex items-center justify-between">
+                                <div>
+                                    <h2 className="text-3xl font-black text-slate-900 dark:text-white tracking-tight">Principal's Message</h2>
+                                    <p className="text-slate-500 dark:text-slate-400">Manage the message and details from the institution's head.</p>
+                                </div>
+                                <button
+                                    onClick={handleSave}
+                                    disabled={isSaving}
+                                    className="px-6 py-3 bg-[var(--primary)] text-white font-bold rounded-xl"
+                                >
+                                    {isSaving ? "Saving..." : "Save Message"}
+                                </button>
+                            </div>
+                            <div className="bg-white dark:bg-slate-900 rounded-2xl border border-[var(--primary)]/10 p-8 shadow-sm space-y-8">
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                                    <div className="space-y-4">
+                                        <div>
+                                            <label className="block text-sm font-bold text-slate-500 mb-2">Principal's Name</label>
+                                            <input
+                                                type="text"
+                                                value={content?.principal?.name || ""}
+                                                onChange={(e) => setContent((prev: any) => ({
+                                                    ...prev,
+                                                    principal: { ...(prev.principal || {}), name: e.target.value }
+                                                }))}
+                                                className="w-full px-4 py-3 rounded-xl border border-[var(--primary)]/10 bg-[#f6f8f7] dark:bg-emerald-950/20 outline-none focus:ring-2 focus:ring-[var(--primary)] dark:text-white transition-all"
+                                            />
+                                        </div>
+                                        <div>
+                                            <label className="block text-sm font-bold text-slate-500 mb-2">Designation</label>
+                                            <input
+                                                type="text"
+                                                value={content?.principal?.designation || ""}
+                                                onChange={(e) => setContent((prev: any) => ({
+                                                    ...prev,
+                                                    principal: { ...(prev.principal || {}), designation: e.target.value }
+                                                }))}
+                                                className="w-full px-4 py-3 rounded-xl border border-[var(--primary)]/10 bg-[#f6f8f7] dark:bg-emerald-950/20 outline-none focus:ring-2 focus:ring-[var(--primary)] dark:text-white transition-all"
+                                            />
+                                        </div>
+                                        <div>
+                                            <label className="block text-sm font-bold text-slate-500 mb-2">Profile Image URL</label>
+                                            <input
+                                                type="text"
+                                                value={content?.principal?.image || ""}
+                                                onChange={(e) => setContent((prev: any) => ({
+                                                    ...prev,
+                                                    principal: { ...(prev.principal || {}), image: e.target.value }
+                                                }))}
+                                                className="w-full px-4 py-3 rounded-xl border border-[var(--primary)]/10 bg-[#f6f8f7] dark:bg-emerald-950/20 outline-none focus:ring-2 focus:ring-[var(--primary)] dark:text-white transition-all"
+                                            />
+                                        </div>
+                                    </div>
+                                    <div className="flex items-center justify-center p-4 bg-slate-50 dark:bg-slate-800 rounded-2xl border-2 border-dashed border-slate-200">
+                                        {content?.principal?.image ? (
+                                            <img src={content.principal.image} alt="Principal Preview" className="max-h-60 rounded-xl shadow-lg" />
+                                        ) : (
+                                            <span className="material-symbols-outlined text-6xl text-slate-300">account_circle</span>
+                                        )}
+                                    </div>
+                                </div>
+                                <div className="space-y-6 pt-4 border-t border-slate-100 dark:border-slate-800">
+                                    <div>
+                                        <label className="block text-sm font-bold text-slate-500 mb-2">Main Message</label>
+                                        <textarea
+                                            rows={6}
+                                            value={content?.principal?.message || ""}
+                                            onChange={(e) => setContent((prev: any) => ({
+                                                ...prev,
+                                                principal: { ...(prev.principal || {}), message: e.target.value }
+                                            }))}
+                                            className="w-full px-4 py-3 rounded-xl border border-[var(--primary)]/10 bg-[#f6f8f7] dark:bg-emerald-950/20 outline-none focus:ring-2 focus:ring-[var(--primary)] dark:text-white transition-all resize-none"
+                                        />
+                                    </div>
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                        <div>
+                                            <label className="block text-sm font-bold text-slate-500 mb-2">Vision Statement</label>
+                                            <textarea
+                                                rows={4}
+                                                value={content?.principal?.vision || ""}
+                                                onChange={(e) => setContent((prev: any) => ({
+                                                    ...prev,
+                                                    principal: { ...(prev.principal || {}), vision: e.target.value }
+                                                }))}
+                                                className="w-full px-4 py-3 rounded-xl border border-[var(--primary)]/10 bg-[#f6f8f7] dark:bg-emerald-950/20 outline-none focus:ring-2 focus:ring-[var(--primary)] dark:text-white transition-all resize-none"
+                                            />
+                                        </div>
+                                        <div>
+                                            <label className="block text-sm font-bold text-slate-500 mb-2">Mission Statement</label>
+                                            <textarea
+                                                rows={4}
+                                                value={content?.principal?.mission || ""}
+                                                onChange={(e) => setContent((prev: any) => ({
+                                                    ...prev,
+                                                    principal: { ...(prev.principal || {}), mission: e.target.value }
+                                                }))}
+                                                className="w-full px-4 py-3 rounded-xl border border-[var(--primary)]/10 bg-[#f6f8f7] dark:bg-emerald-950/20 outline-none focus:ring-2 focus:ring-[var(--primary)] dark:text-white transition-all resize-none"
+                                            />
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    )}
+
+                    {currentNav === "markaz" && (
+                        <div key="markaz-page">
+                            <div className="sticky top-0 bg-[#f6f8f7] dark:bg-[#10221d] z-30 pb-4 pt-4 border-b border-[var(--primary)]/5 -mt-4 mb-8 flex items-center justify-between">
+                                <div>
+                                    <h2 className="text-3xl font-black text-slate-900 dark:text-white tracking-tight">Markaz History</h2>
+                                    <p className="text-slate-500 dark:text-slate-400">Update the institutional legacy and background information.</p>
+                                </div>
+                                <button
+                                    onClick={handleSave}
+                                    disabled={isSaving}
+                                    className="px-6 py-3 bg-[var(--primary)] text-white font-bold rounded-xl"
+                                >
+                                    {isSaving ? "Saving..." : "Save History"}
+                                </button>
+                            </div>
+                            <div className="bg-white dark:bg-slate-900 rounded-2xl border border-[var(--primary)]/10 p-8 shadow-sm space-y-8">
+                                <div>
+                                    <label className="block text-sm font-bold text-slate-500 mb-2">History Title</label>
+                                    <input
+                                        type="text"
+                                        value={content?.markaz?.title || ""}
+                                        onChange={(e) => setContent((prev: any) => ({
+                                            ...prev,
+                                            markaz: { ...(prev.markaz || {}), title: e.target.value }
+                                        }))}
+                                        className="w-full px-4 py-3 rounded-xl border border-[var(--primary)]/10 bg-[#f6f8f7] dark:bg-emerald-950/20 outline-none focus:ring-2 focus:ring-[var(--primary)] dark:text-white transition-all"
+                                    />
+                                </div>
+                                <div>
+                                    <label className="block text-sm font-bold text-slate-500 mb-2">Legacy Narrative (Short)</label>
+                                    <textarea
+                                        rows={4}
+                                        value={content?.markaz?.history || ""}
+                                        onChange={(e) => setContent((prev: any) => ({
+                                            ...prev,
+                                            markaz: { ...(prev.markaz || {}), history: e.target.value }
+                                        }))}
+                                        className="w-full px-4 py-3 rounded-xl border border-[var(--primary)]/10 bg-[#f6f8f7] dark:bg-emerald-950/20 outline-none focus:ring-2 focus:ring-[var(--primary)] dark:text-white transition-all resize-none"
+                                    />
+                                </div>
+                                <div>
+                                    <label className="block text-sm font-bold text-slate-500 mb-2">Full Institutional History</label>
+                                    <textarea
+                                        rows={12}
+                                        value={content?.markaz?.content || ""}
+                                        onChange={(e) => setContent((prev: any) => ({
+                                            ...prev,
+                                            markaz: { ...(prev.markaz || {}), content: e.target.value }
+                                        }))}
+                                        className="w-full px-4 py-3 rounded-xl border border-[var(--primary)]/10 bg-[#f6f8f7] dark:bg-emerald-950/20 outline-none focus:ring-2 focus:ring-[var(--primary)] dark:text-white transition-all resize-none"
+                                    />
+                                </div>
+                            </div>
+                        </div>
+                    )}
+
+                    {currentNav === "videos" && (
+                        <div key="videos-page">
+                            <div className="sticky top-0 bg-[#f6f8f7] dark:bg-[#10221d] z-30 pb-4 pt-4 border-b border-[var(--primary)]/5 -mt-4 mb-8 flex items-center justify-between">
+                                <div>
+                                    <h2 className="text-3xl font-black text-slate-900 dark:text-white tracking-tight">Video Gallery</h2>
+                                    <p className="text-slate-500 dark:text-slate-400">Manage campus tours, student experiences, and motivational clips.</p>
+                                </div>
+                                <div className="flex gap-4">
+                                    <button
+                                        onClick={() => {
+                                            const newItem = { id: Date.now().toString(), title: "New Video", category: "Campus tour", url: "", thumbnail: "" };
+                                            const newItems = [...(content?.videos || []), newItem];
+                                            setContent((prev: any) => ({ ...prev, videos: newItems }));
+                                        }}
+                                        className="px-6 py-3 bg-white border border-[var(--primary)]/10 text-[var(--primary)] font-bold rounded-xl hover:bg-slate-50 transition-all flex items-center gap-2"
+                                    >
+                                        <span className="material-symbols-outlined">add_video</span>
+                                        Add Video
+                                    </button>
+                                    <button
+                                        onClick={handleSave}
+                                        disabled={isSaving}
+                                        className="px-6 py-3 bg-[var(--primary)] text-white font-bold rounded-xl"
+                                    >
+                                        {isSaving ? "Saving..." : "Save Changes"}
+                                    </button>
+                                </div>
+                            </div>
+                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 pb-20">
+                                {content?.videos?.map((video: any, idx: number) => (
+                                    <div key={idx} className="bg-white dark:bg-slate-900 p-6 rounded-2xl border border-[var(--primary)]/10 shadow-sm space-y-4 group relative">
+                                        <button
+                                            onClick={() => {
+                                                const newItems = content.videos.filter((_: any, i: number) => i !== idx);
+                                                setContent((prev: any) => ({ ...prev, videos: newItems }));
+                                            }}
+                                            className="absolute top-4 right-4 text-red-500 hover:bg-red-50 p-2 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity z-10 bg-white shadow-sm"
+                                        >
+                                            <span className="material-symbols-outlined">delete</span>
+                                        </button>
+                                        <div className="aspect-video bg-slate-100 rounded-xl overflow-hidden relative">
+                                            {video.thumbnail ? (
+                                                <img src={video.thumbnail} className="w-full h-full object-cover" />
+                                            ) : (
+                                                <div className="w-full h-full flex items-center justify-center text-slate-300">
+                                                    <span className="material-symbols-outlined text-4xl">video_file</span>
+                                                </div>
+                                            )}
+                                            <div className="absolute top-2 left-2 px-2 py-1 bg-[var(--primary)] text-white text-[10px] font-bold rounded uppercase">
+                                                {video.category}
+                                            </div>
+                                        </div>
+                                        <div className="space-y-4">
+                                            <div>
+                                                <label className="block text-xs font-bold text-slate-400 uppercase mb-1">Video Title</label>
+                                                <input
+                                                    type="text"
+                                                    value={video.title}
+                                                    onChange={(e) => {
+                                                        const newItems = [...content.videos];
+                                                        newItems[idx].title = e.target.value;
+                                                        setContent((prev: any) => ({ ...prev, videos: newItems }));
+                                                    }}
+                                                    className="w-full px-3 py-2 text-sm rounded-lg border border-[var(--primary)]/10 bg-slate-50 dark:bg-slate-800"
+                                                />
+                                            </div>
+                                            <div className="grid grid-cols-2 gap-4">
+                                                <div>
+                                                    <label className="block text-xs font-bold text-slate-400 uppercase mb-1">Category</label>
+                                                    <select
+                                                        value={video.category}
+                                                        onChange={(e) => {
+                                                            const newItems = [...content.videos];
+                                                            newItems[idx].category = e.target.value;
+                                                            setContent((prev: any) => ({ ...prev, videos: newItems }));
+                                                        }}
+                                                        className="w-full px-3 py-2 text-sm rounded-lg border border-[var(--primary)]/10 bg-slate-50 dark:bg-slate-800"
+                                                    >
+                                                        <option>Short video</option>
+                                                        <option>Campus tour</option>
+                                                        <option>Student experience</option>
+                                                        <option>Motivational clip</option>
+                                                    </select>
+                                                </div>
+                                                <div>
+                                                    <label className="block text-xs font-bold text-slate-400 uppercase mb-1">YouTube URL</label>
+                                                    <input
+                                                        type="text"
+                                                        value={video.url}
+                                                        placeholder="Paste link here..."
+                                                        onChange={(e) => {
+                                                            const rawUrl = e.target.value;
+                                                            const embedUrl = getYouTubeEmbedUrl(rawUrl);
+                                                            const newItems = [...content.videos];
+                                                            newItems[idx].url = embedUrl;
+                                                            // Auto-suggest thumbnail if empty
+                                                            if (!newItems[idx].thumbnail) {
+                                                                newItems[idx].thumbnail = getYouTubeThumbnail(rawUrl);
+                                                            }
+                                                            setContent((prev: any) => ({ ...prev, videos: newItems }));
+                                                        }}
+                                                        className="w-full px-3 py-2 text-sm rounded-lg border border-[var(--primary)]/10 bg-slate-50 dark:bg-slate-800"
+                                                    />
+                                                </div>
+                                            </div>
+                                            <div>
+                                                <label className="block text-xs font-bold text-slate-400 uppercase mb-1">Thumbnail URL (Auto-generated if YouTube)</label>
+                                                <input
+                                                    type="text"
+                                                    value={video.thumbnail}
+                                                    placeholder="https://..."
+                                                    onChange={(e) => {
+                                                        const newItems = [...content.videos];
+                                                        newItems[idx].thumbnail = e.target.value;
+                                                        setContent((prev: any) => ({ ...prev, videos: newItems }));
+                                                    }}
+                                                    className="w-full px-3 py-2 text-sm rounded-lg border border-[var(--primary)]/10 bg-slate-50 dark:bg-slate-800"
+                                                />
+                                            </div>
+                                        </div>
+                                    </div>
+                                ))}
                             </div>
                         </div>
                     )}
