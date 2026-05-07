@@ -3,14 +3,44 @@
 import Link from "next/link";
 import { useState } from "react";
 
-const NavItem = ({ label, href, dropdownItems }: { label: string; href?: string; dropdownItems?: { label: string; href: string }[] }) => {
+const NavItem = ({ label, href, dropdownItems, isMobile, closeMenu }: { label: string; href?: string; dropdownItems?: { label: string; href: string }[]; isMobile?: boolean; closeMenu?: () => void }) => {
+    const [isExpanded, setIsExpanded] = useState(false);
+
     if (dropdownItems) {
+        if (isMobile) {
+            return (
+                <div className="w-full">
+                    <button 
+                        onClick={() => setIsExpanded(!isExpanded)}
+                        className="w-full flex items-center justify-between py-3 text-sm font-semibold text-slate-700 dark:text-slate-200 border-b border-primary/5"
+                    >
+                        {label}
+                        <span className={`material-symbols-outlined text-xl transition-transform duration-300 ${isExpanded ? 'rotate-180 text-primary' : 'text-slate-400'}`}>
+                            expand_more
+                        </span>
+                    </button>
+                    <div className={`overflow-hidden transition-all duration-300 bg-primary/5 rounded-lg mt-1 ${isExpanded ? 'max-h-[400px] py-2 mb-2' : 'max-h-0'}`}>
+                        {dropdownItems.map((item, idx) => (
+                            <Link 
+                                key={idx} 
+                                href={item.href} 
+                                onClick={closeMenu}
+                                className="block px-6 py-2.5 text-sm font-medium text-slate-600 dark:text-slate-400 hover:text-primary transition-colors"
+                            >
+                                {item.label}
+                            </Link>
+                        ))}
+                    </div>
+                </div>
+            );
+        }
+
         return (
             <div className="group relative">
                 <button className="nav-link flex items-center gap-1 text-sm font-medium hover:text-primary transition-colors py-2">
                     {label} <span className="material-symbols-outlined text-xs">expand_more</span>
                 </button>
-                <div className="absolute top-full left-0 hidden group-hover:block bg-white dark:bg-[#10221d] shadow-xl border border-primary/5 rounded-xl py-2 min-w-[200px] z-50">
+                <div className="absolute top-full left-0 hidden group-hover:block bg-white dark:bg-[#10221d] shadow-xl border border-primary/5 rounded-xl py-2 min-w-[200px] z-50 animate-in fade-in slide-in-from-top-2 duration-200">
                     {dropdownItems.map((item, idx) => (
                         <Link key={idx} href={item.href} className="block px-4 py-2 hover:bg-primary/5 hover:text-primary text-sm transition-colors text-slate-700 dark:text-slate-200">
                             {item.label}
@@ -20,8 +50,13 @@ const NavItem = ({ label, href, dropdownItems }: { label: string; href?: string;
             </div>
         );
     }
+
     return (
-        <Link href={href || "#"} className="nav-link text-sm font-medium hover:text-primary transition-colors py-2">
+        <Link 
+            href={href || "#"} 
+            onClick={isMobile ? closeMenu : undefined}
+            className={`text-sm font-medium hover:text-primary transition-colors py-3 ${isMobile ? 'block border-b border-primary/5 text-slate-700 dark:text-slate-200' : 'nav-link'}`}
+        >
             {label}
         </Link>
     );
@@ -29,6 +64,36 @@ const NavItem = ({ label, href, dropdownItems }: { label: string; href?: string;
 
 export default function Navbar() {
     const [isMenuOpen, setIsMenuOpen] = useState(false);
+
+    const navLinks = [
+        {
+            label: "About",
+            dropdownItems: [
+                { label: "Ishore Heritage", href: "/about" },
+                { label: "Principal's Message", href: "/principal-message" },
+                { label: "Markaz Connection", href: "/markaz" },
+            ]
+        },
+        {
+            label: "Admission",
+            dropdownItems: [
+                { label: "Apply Online", href: "/admission" },
+                { label: "Student Login", href: "/student-portal/login" },
+            ]
+        },
+        {
+            label: "Academics",
+            dropdownItems: [
+                { label: "Latest News", href: "/academics" },
+                { label: "Videos", href: "/videos" },
+                { label: "Gallery", href: "/gallery" },
+                { label: "Careers", href: "#" },
+            ]
+        },
+        { label: "Programmes", href: "/programme" },
+        { label: "Facilities", href: "/facilities" },
+        { label: "Achievements", href: "/achievements" },
+    ];
 
     return (
         <header className="sticky top-0 z-50 glass-effect border-b border-primary/10 px-4 md:px-10 lg:px-20 py-4">
@@ -39,33 +104,9 @@ export default function Navbar() {
 
                 {/* Desktop Nav */}
                 <nav className="hidden xl:flex items-center gap-8">
-                    <NavItem
-                        label="About"
-                        dropdownItems={[
-                            { label: "Ishore Heritage", href: "/about" },
-                            { label: "Principal's Message", href: "/principal-message" },
-                            { label: "Markaz Connection", href: "/markaz" },
-                        ]}
-                    />
-                    <NavItem
-                        label="Admission"
-                        dropdownItems={[
-                            { label: "Apply Online", href: "/admission" },
-                            { label: "Student Login", href: "/student-portal/login" },
-                        ]}
-                    />
-                    <NavItem
-                        label="Academics"
-                        dropdownItems={[
-                            { label: "Latest News", href: "/academics" },
-                            { label: "Videos", href: "/videos" },
-                            { label: "Gallery", href: "/gallery" },
-                            { label: "Careers", href: "#" },
-                        ]}
-                    />
-                    <NavItem label="Programmes" href="/programme" />
-                    <NavItem label="Facilities" href="/facilities" />
-                    <NavItem label="Achievements" href="/achievements" />
+                    {navLinks.map((link, idx) => (
+                        <NavItem key={idx} {...link} />
+                    ))}
                 </nav>
 
                 <div className="flex items-center gap-4">
@@ -76,25 +117,30 @@ export default function Navbar() {
                         Apply Now
                     </Link>
                     <button
-                        className="xl:hidden flex items-center p-2"
+                        className="xl:hidden flex items-center p-2 text-primary"
                         onClick={() => setIsMenuOpen(!isMenuOpen)}
                     >
-                        <span className="material-symbols-outlined">{isMenuOpen ? 'close' : 'menu'}</span>
+                        <span className="material-symbols-outlined text-3xl">{isMenuOpen ? 'close' : 'menu'}</span>
                     </button>
                 </div>
             </div>
 
             {/* Mobile Menu */}
-            {isMenuOpen && (
-                <div className="xl:hidden absolute top-full left-0 right-0 bg-white dark:bg-[#10221d] border-b border-primary/10 p-4 flex flex-col gap-4 shadow-xl">
-                    <Link href="/about" className="text-sm font-medium py-2 border-b border-primary/5">About</Link>
-                    <Link href="/admission" className="text-sm font-medium py-2 border-b border-primary/5">Admission</Link>
-                    <Link href="/academics" className="text-sm font-medium py-2 border-b border-primary/5">Academics</Link>
-                    <Link href="/programme" className="text-sm font-medium py-2 border-b border-primary/5">Programmes</Link>
-                    <Link href="/facilities" className="text-sm font-medium py-2 border-b border-primary/5">Facilities</Link>
-                    <Link href="/achievements" className="text-sm font-medium py-2 border-b border-primary/5">Achievements</Link>
+            <div className={`xl:hidden absolute top-full left-0 right-0 bg-white dark:bg-[#10221d] border-b border-primary/10 overflow-hidden transition-all duration-300 ease-in-out shadow-2xl ${isMenuOpen ? 'max-h-[100vh] opacity-100 py-6 px-6' : 'max-h-0 opacity-0 pointer-events-none'}`}>
+                <div className="flex flex-col">
+                    {navLinks.map((link, idx) => (
+                        <NavItem key={idx} {...link} isMobile closeMenu={() => setIsMenuOpen(false)} />
+                    ))}
+                    <div className="mt-8 flex gap-4">
+                        <Link href="/student-portal/login" className="flex-1 text-center py-3 rounded-xl border border-primary/10 text-sm font-bold text-primary">
+                            Portal Login
+                        </Link>
+                        <Link href="/admission" className="flex-1 text-center py-3 rounded-xl bg-primary text-white text-sm font-bold shadow-lg shadow-primary/20">
+                            Apply Now
+                        </Link>
+                    </div>
                 </div>
-            )}
+            </div>
         </header>
     );
 }
