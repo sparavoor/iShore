@@ -25,6 +25,16 @@
   --accent: #a2ddf4;
   --tertiary: #006595;
   --glass: rgba(255, 255, 255, 0.9);
+  --muted: #64748b;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --background: #0b1120;
+    --foreground: #f8fafc;
+    --glass: rgba(11, 17, 32, 0.9);
+    --muted: #94a3b8;
+  }
 }
 
 @theme inline {
@@ -33,15 +43,11 @@
   --color-primary: var(--primary);
   --color-accent: var(--accent);
   --color-tertiary: var(--tertiary);
+  --color-muted: var(--muted);
+  --color-background-light: #fdfdfd;
+  --color-background-dark: #0b1120;
+  --color-surface-dark: #10221d;
   --font-display: "Lexend", sans-serif;
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0b1120;
-    --foreground: #f8fafc;
-    --glass: rgba(11, 17, 32, 0.9);
-  }
 }
 
 body {

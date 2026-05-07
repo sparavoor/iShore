@@ -102,7 +102,7 @@ export default function HomeMain({ initialContent }: { initialContent: any }) {
                       </div>
                       <div>
                         <h4 className="font-bold text-slate-900 dark:text-white">{stat?.label}</h4>
-                        <p className="text-sm text-slate-500">{stat?.value}</p>
+                        <p className="text-sm text-slate-500 dark:text-slate-400">{stat?.value}</p>
                       </div>
                     </motion.div>
                   ))}
@@ -212,8 +212,8 @@ export default function HomeMain({ initialContent }: { initialContent: any }) {
                   className="bg-background-light dark:bg-background-dark/80 p-8 rounded-3xl border border-primary/5 hover:border-accent/30 shadow-sm transition-all duration-300"
                 >
                   <span className="material-symbols-outlined text-accent text-5xl mb-6">{item.icon}</span>
-                  <h4 className="text-xl font-bold mb-3">{item.title}</h4>
-                  <p className="text-slate-500 text-sm mb-6 leading-relaxed">{item.desc}</p>
+                  <h4 className="text-xl font-bold mb-3 text-slate-900 dark:text-white">{item.title}</h4>
+                  <p className="text-slate-500 dark:text-slate-400 text-sm mb-6 leading-relaxed">{item.desc}</p>
                   <Link href="/programme" className="text-primary font-bold text-sm flex items-center gap-1 hover:gap-2 transition-all">
                     Explore <span className="material-symbols-outlined text-xs">arrow_forward</span>
                   </Link>
@@ -224,10 +224,10 @@ export default function HomeMain({ initialContent }: { initialContent: any }) {
         </section>
 
         {/* Collaborators Rolling Section */}
-        <section className="py-20 bg-primary/5 overflow-hidden border-y border-primary/5">
+        <section className="py-20 bg-primary/5 dark:bg-primary/10 overflow-hidden border-y border-primary/5 dark:border-primary/10">
           <div className="max-w-7xl mx-auto px-4 text-center">
-            <h3 className="text-slate-500 text-xs font-bold uppercase tracking-widest mb-12">Our Global Collaborators</h3>
-            <div className="flex flex-wrap justify-center items-center gap-16 md:gap-24 opacity-60 grayscale hover:grayscale-0 transition-all duration-700">
+            <h3 className="text-slate-500 dark:text-slate-400 text-xs font-bold uppercase tracking-widest mb-12">Our Global Collaborators</h3>
+            <div className="flex flex-wrap justify-center items-center gap-16 md:gap-24 opacity-60 dark:opacity-80 grayscale hover:grayscale-0 transition-all duration-700">
               {home?.collaborators?.map((partner: any, i: number) => (
                 <motion.div
                   key={i}
@@ -268,13 +268,13 @@ export default function HomeMain({ initialContent }: { initialContent: any }) {
                       <div className="w-32 h-32 shrink-0 rounded-2xl overflow-hidden bg-slate-100 flex items-center justify-center">
                         <img src={item?.img} alt={item?.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
                       </div>
-                      <div className="flex flex-col justify-start h-full">
-                        <span className="text-[var(--accent)] text-[10px] font-extrabold uppercase tracking-wider mb-2">{item?.date}</span>
-                        <h4 className="text-xl font-extrabold text-slate-900 dark:text-white mb-2 leading-tight group-hover:text-[var(--primary)] transition-colors line-clamp-2">{item?.title}</h4>
-                        <p className="text-slate-500 text-sm leading-relaxed line-clamp-2 mb-3">
+                       <div className="flex flex-col justify-start h-full">
+                        <span className="text-accent text-[10px] font-extrabold uppercase tracking-wider mb-2">{item?.date}</span>
+                        <h4 className="text-xl font-extrabold text-slate-900 dark:text-white mb-2 leading-tight group-hover:text-primary transition-colors line-clamp-2">{item?.title}</h4>
+                        <p className="text-slate-500 dark:text-slate-400 text-sm leading-relaxed line-clamp-2 mb-3">
                           {item?.content || "Keep up to date with the latest developments, achievements, and events happening at Ishore Educational Institution."}
                         </p>
-                        <span className="text-[var(--primary)] dark:text-[var(--accent)] font-bold text-sm flex items-center gap-1 mt-auto group-hover:gap-2 transition-all w-fit">
+                        <span className="text-primary dark:text-accent font-bold text-sm flex items-center gap-1 mt-auto group-hover:gap-2 transition-all w-fit">
                           Read Full Article <span className="material-symbols-outlined text-xs">arrow_forward</span>
                         </span>
                       </div>
