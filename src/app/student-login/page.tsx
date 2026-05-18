@@ -176,7 +176,7 @@ export default function StudentLogin() {
                                         <span>{isLoading ? 'Logging in...' : 'Login to Portal'}</span>
                                         {!isLoading && (
                                             <span className="material-symbols-outlined text-xl group-hover:translate-x-1 transition-transform">
-                                                arrow_forward
+
                                             </span>
                                         )}
                                     </button>

@@ -53,7 +53,7 @@ export default function AcademicsMain({ initialContent }: { initialContent: any 
                                             <span
                                                 className="inline-flex items-center gap-2 text-primary dark:text-accent font-bold group-hover:gap-4 transition-all mt-auto w-fit border-b border-transparent group-hover:border-accent"
                                             >
-                                                Read Full Article <span className="material-symbols-outlined text-sm">arrow_forward</span>
+                                                Read Full Article <span className="material-symbols-outlined text-sm"></span>
                                             </span>
                                         </div>
                                     </motion.div>

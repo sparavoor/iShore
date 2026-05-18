@@ -61,7 +61,7 @@ export default function ProgrammePage() {
                                         {item.desc}
                                     </p>
                                     <button className="text-primary font-bold flex items-center gap-2 hover:gap-4 transition-all">
-                                        Course Details <span className="material-symbols-outlined text-sm">arrow_forward</span>
+                                        Course Details <span className="material-symbols-outlined text-sm"></span>
                                     </button>
                                 </motion.div>
                             ))}

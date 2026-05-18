@@ -309,7 +309,7 @@ export default function AdminPage() {
                                     <h3 className="text-lg font-bold text-slate-900 dark:text-white">Recent Admission Applications</h3>
                                     <button className="text-[var(--primary)] hover:underline text-sm font-bold flex items-center gap-1">
                                         <span>View All</span>
-                                        <span className="material-symbols-outlined text-sm">arrow_forward</span>
+                                        <span className="material-symbols-outlined text-sm"></span>
                                     </button>
                                 </div>
                                 <div className="overflow-x-auto">
@@ -637,7 +637,7 @@ export default function AdminPage() {
                                                     className="w-full px-4 py-3 rounded-xl border border-[var(--primary)]/10 bg-[#f6f8f7] dark:bg-emerald-950/20 outline-none focus:ring-2 focus:ring-[var(--primary)] dark:text-white transition-all resize-none"
                                                 />
                                             </div>
-                                            
+
                                             {/* Only show images and buttons for Home page, as requested for About page layout */}
                                             {activePageTab === "home" && (
                                                 <>
@@ -657,9 +657,9 @@ export default function AdminPage() {
                                                                     <label className={`w-full flex items-center justify-center gap-2 px-6 py-3 rounded-xl font-bold cursor-pointer transition-all ${isUploading ? 'bg-slate-100 text-slate-400' : 'bg-emerald-50 text-[var(--primary)] hover:bg-emerald-100 border border-[var(--primary)]/10'}`}>
                                                                         <span className="material-symbols-outlined">{isUploading ? 'sync' : 'upload'}</span>
                                                                         {isUploading ? 'Uploading...' : 'Upload Desktop Version'}
-                                                                        <input 
-                                                                            type="file" 
-                                                                            className="hidden" 
+                                                                        <input
+                                                                            type="file"
+                                                                            className="hidden"
                                                                             accept="image/*"
                                                                             onChange={(e) => {
                                                                                 const file = e.target.files?.[0];
@@ -693,9 +693,9 @@ export default function AdminPage() {
                                                                     <label className={`w-full flex items-center justify-center gap-2 px-6 py-3 rounded-xl font-bold cursor-pointer transition-all ${isUploading ? 'bg-slate-100 text-slate-400' : 'bg-emerald-50 text-[var(--primary)] hover:bg-emerald-100 border border-[var(--primary)]/10'}`}>
                                                                         <span className="material-symbols-outlined">{isUploading ? 'sync' : 'upload'}</span>
                                                                         {isUploading ? 'Uploading...' : 'Upload Tablet Version'}
-                                                                        <input 
-                                                                            type="file" 
-                                                                            className="hidden" 
+                                                                        <input
+                                                                            type="file"
+                                                                            className="hidden"
                                                                             accept="image/*"
                                                                             onChange={(e) => {
                                                                                 const file = e.target.files?.[0];
@@ -729,9 +729,9 @@ export default function AdminPage() {
                                                                     <label className={`w-full flex items-center justify-center gap-2 px-6 py-3 rounded-xl font-bold cursor-pointer transition-all ${isUploading ? 'bg-slate-100 text-slate-400' : 'bg-emerald-50 text-[var(--primary)] hover:bg-emerald-100 border border-[var(--primary)]/10'}`}>
                                                                         <span className="material-symbols-outlined">{isUploading ? 'sync' : 'upload'}</span>
                                                                         {isUploading ? 'Uploading...' : 'Upload Mobile Version'}
-                                                                        <input 
-                                                                            type="file" 
-                                                                            className="hidden" 
+                                                                        <input
+                                                                            type="file"
+                                                                            className="hidden"
                                                                             accept="image/*"
                                                                             onChange={(e) => {
                                                                                 const file = e.target.files?.[0];
@@ -885,9 +885,9 @@ export default function AdminPage() {
                                                         <label className={`w-full flex items-center justify-center gap-2 px-6 py-3 rounded-xl font-bold cursor-pointer transition-all ${isUploading ? 'bg-slate-100 text-slate-400' : 'bg-emerald-50 text-[var(--primary)] hover:bg-emerald-100 border border-[var(--primary)]/10'}`}>
                                                             <span className="material-symbols-outlined">{isUploading ? 'sync' : 'upload'}</span>
                                                             {isUploading ? 'Uploading...' : 'Upload New Photo'}
-                                                            <input 
-                                                                type="file" 
-                                                                className="hidden" 
+                                                            <input
+                                                                type="file"
+                                                                className="hidden"
                                                                 accept="image/*"
                                                                 onChange={(e) => {
                                                                     const file = e.target.files?.[0];

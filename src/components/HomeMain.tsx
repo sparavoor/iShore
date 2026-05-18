@@ -60,7 +60,7 @@ export default function HomeMain({ initialContent }: { initialContent: any }) {
               <div className="flex flex-wrap justify-center lg:justify-start gap-4 mt-90">
                 <Link href={home?.hero?.ctaPrimaryLink || "/admission"} className="px-8 py-4 bg-white text-primary font-bold rounded-xl flex items-center gap-2 hover:scale-105 transition-transform shadow-lg shadow-accent/20">
                   {home?.hero?.ctaPrimary || "Apply Now"}
-                  <span className="material-symbols-outlined">arrow_forward</span>
+                  <span className="material-symbols-outlined"></span>
                 </Link>
                 <Link href={home?.hero?.ctaSecondaryLink || "/programme"} className="px-8 py-4 bg-white/10 backdrop-blur-md text-white border border-white/20 font-bold rounded-xl hover:bg-white/20 transition-all">
                   {home?.hero?.ctaSecondary || "Explore Programs"}
@@ -109,7 +109,7 @@ export default function HomeMain({ initialContent }: { initialContent: any }) {
                 </div>
                 <Link href="/about" className="inline-flex items-center gap-2 text-primary font-bold hover:gap-4 transition-all group">
                   Learn More About Our Heritage
-                  <span className="material-symbols-outlined text-sm group-hover:text-accent">arrow_forward</span>
+                  <span className="material-symbols-outlined text-sm group-hover:text-accent"></span>
                 </Link>
               </motion.div>
 
@@ -215,7 +215,7 @@ export default function HomeMain({ initialContent }: { initialContent: any }) {
                   <h4 className="text-xl font-bold mb-3 text-slate-900 dark:text-white">{item.title}</h4>
                   <p className="text-slate-500 dark:text-slate-400 text-sm mb-6 leading-relaxed">{item.desc}</p>
                   <Link href="/programme" className="text-primary font-bold text-sm flex items-center gap-1 hover:gap-2 transition-all">
-                    Explore <span className="material-symbols-outlined text-xs">arrow_forward</span>
+                    Explore <span className="material-symbols-outlined text-xs"></span>
                   </Link>
                 </motion.div>
               ))}
@@ -275,7 +275,7 @@ export default function HomeMain({ initialContent }: { initialContent: any }) {
                           {item?.content || "Keep up to date with the latest developments, achievements, and events happening at Ishore Educational Institution."}
                         </p>
                         <span className="text-primary dark:text-accent font-bold text-sm flex items-center gap-1 mt-auto group-hover:gap-2 transition-all w-fit">
-                          Read Full Article <span className="material-symbols-outlined text-xs">arrow_forward</span>
+                          Read Full Article <span className="material-symbols-outlined text-xs"></span>
                         </span>
                       </div>
                     </motion.div>
