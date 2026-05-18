@@ -22,7 +22,7 @@ export default function Footer({ contact }: FooterProps) {
                         <div className="flex items-center mb-6">
                             <img src="/company-logo.png" alt="iSHORE Educational Institution" className="h-8 md:h-10 w-auto brightness-0 invert opacity-90" />
                         </div>
-                        <p className="text-slate-300 text-sm leading-relaxed">
+                        <p className="text-white text-sm leading-relaxed">
                             Leading the way in holistic education. Blending intellectual rigor with ethical excellence since 1994.
                         </p>
                         <div className="flex gap-4">
@@ -45,7 +45,7 @@ export default function Footer({ contact }: FooterProps) {
                     </div>
                     <div>
                         <h4 className="text-accent font-bold mb-6">Quick Links</h4>
-                        <ul className="space-y-4 text-slate-300 text-sm">
+                        <ul className="space-y-4 text-white text-sm">
                             <li><Link className="hover:text-white transition-colors" href="/about">About Us</Link></li>
                             <li><Link className="hover:text-white transition-colors" href="/admission">Admissions</Link></li>
                             <li><Link className="hover:text-white transition-colors" href="/programme">Academic Programs</Link></li>
@@ -55,7 +55,7 @@ export default function Footer({ contact }: FooterProps) {
                     </div>
                     <div>
                         <h4 className="text-accent font-bold mb-6">Contact Info</h4>
-                        <ul className="space-y-4 text-slate-300 text-sm">
+                        <ul className="space-y-4 text-white text-sm">
                             <li className="flex items-start gap-3">
                                 <span className="material-symbols-outlined text-accent text-sm">location_on</span>
                                 <span className="whitespace-pre-line">{contact?.address || "Ishore Educational Campus,\nMain Road, City - 673001"}</span>
@@ -72,10 +72,10 @@ export default function Footer({ contact }: FooterProps) {
                     </div>
                     <div>
                         <h4 className="text-accent font-bold mb-6">Newsletter</h4>
-                        <p className="text-slate-300 text-xs mb-4">Get latest updates and announcements.</p>
+                        <p className="text-white text-xs mb-4">Get latest updates and announcements.</p>
                         <div className="flex gap-2">
                             <input
-                                className="bg-white/10 border-white/20 rounded-lg px-4 py-2 text-sm w-full focus:ring-accent focus:border-accent text-white placeholder-slate-400"
+                                className="bg-white/10 border-white/20 rounded-lg px-4 py-2 text-sm w-full focus:ring-accent focus:border-accent text-white placeholder-white/60"
                                 placeholder="Email address"
                                 type="email"
                             />
@@ -86,8 +86,8 @@ export default function Footer({ contact }: FooterProps) {
                     </div>
                 </div>
                 <div className="border-t border-white/10 pt-12 flex flex-col md:flex-row justify-between items-center gap-6">
-                    <p className="text-slate-400 text-xs">© {new Date().getFullYear()} Ishore Educational Institution. All Rights Reserved.</p>
-                    <div className="flex gap-6 text-xs text-slate-400">
+                    <p className="text-white text-xs">© {new Date().getFullYear()} All Rights Reserved | Powered by Paper N Pencil.</p>
+                    <div className="flex gap-6 text-xs text-white">
                         <Link className="hover:text-white" href="#">Privacy Policy</Link>
                         <Link className="hover:text-white" href="#">Terms of Use</Link>
                     </div>

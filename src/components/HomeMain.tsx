@@ -57,7 +57,7 @@ export default function HomeMain({ initialContent }: { initialContent: any }) {
               <p className="text-lg md:text-xl text-slate-200 leading-relaxed max-w-xl">
                 {home?.hero?.description}
               </p>
-              <div className="flex flex-wrap justify-center lg:justify-start gap-4">
+              <div className="flex flex-wrap justify-center lg:justify-start gap-4 mt-90">
                 <Link href={home?.hero?.ctaPrimaryLink || "/admission"} className="px-8 py-4 bg-white text-primary font-bold rounded-xl flex items-center gap-2 hover:scale-105 transition-transform shadow-lg shadow-accent/20">
                   {home?.hero?.ctaPrimary || "Apply Now"}
                   <span className="material-symbols-outlined">arrow_forward</span>
@@ -268,7 +268,7 @@ export default function HomeMain({ initialContent }: { initialContent: any }) {
                       <div className="w-32 h-32 shrink-0 rounded-2xl overflow-hidden bg-slate-100 flex items-center justify-center">
                         <img src={item?.img} alt={item?.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
                       </div>
-                       <div className="flex flex-col justify-start h-full">
+                      <div className="flex flex-col justify-start h-full">
                         <span className="text-accent text-[10px] font-extrabold uppercase tracking-wider mb-2">{item?.date}</span>
                         <h4 className="text-xl font-extrabold text-slate-900 dark:text-white mb-2 leading-tight group-hover:text-primary transition-colors line-clamp-2">{item?.title}</h4>
                         <p className="text-slate-500 dark:text-slate-400 text-sm leading-relaxed line-clamp-2 mb-3">
